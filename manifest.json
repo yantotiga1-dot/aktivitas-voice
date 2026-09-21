@@ -1,0 +1,11 @@
+{
+  "name": "SITAMPAN Voice",
+  "short_name": "SITAMPAN Voice",
+  "description": "Input aktivitas harian dengan voice-to-text.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f3f4",
+  "theme_color": "#b51f3d",
+  "lang": "id-ID",
+  "icons": []
+}
