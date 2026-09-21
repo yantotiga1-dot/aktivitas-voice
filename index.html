@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#b51f3d">
+<meta name="description" content="SITAMPAN Voice - input aktivitas harian dengan suara">
+<link rel="manifest" href="manifest.json">
+<title>SITAMPAN Voice</title>
+<style>
+:root{--red:#b51f3d;--red2:#e05268;--bg:#f6f3f4;--card:#fff;--ink:#261f22;--muted:#766d73;--line:#e5dfe1;--green:#18864b;--shadow:0 8px 28px rgba(38,31,34,.08)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:760px;margin:auto;min-height:100vh;padding-bottom:90px}
+.header{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;padding:18px 18px 16px;box-shadow:0 5px 18px rgba(0,0,0,.12)}
+.header h1{margin:0;font-size:22px}.header p{margin:4px 0 0;font-size:13px;opacity:.9}
+.content{padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+label{display:block;font-weight:750;font-size:13px;margin-bottom:7px}
+input[type=date],.search,.text-edit{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:#fff;color:var(--ink);outline:none}
+input:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181,31,61,.1)}
+.field{margin-bottom:15px}
+.activity-wrap{position:relative}
+.activity-list{position:absolute;z-index:30;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:5px;max-height:280px;overflow:auto;box-shadow:var(--shadow);display:none}
+.activity-item{padding:12px 13px;border-bottom:1px solid #f0ebed;font-size:14px}
+.activity-item:last-child{border-bottom:0}.activity-item:hover,.activity-item.selected{background:#fff1f4}
+.activity-no{color:var(--muted);font-size:11px;margin-right:8px}
+.selected-box{background:#fff6f7;border:1px solid #f1c7cf;padding:11px 12px;border-radius:12px;font-size:14px}
+.btn{border:0;border-radius:13px;padding:13px 16px;font-weight:800}
+.btn-primary{background:var(--red);color:#fff;width:100%}
+.btn-secondary{background:#f4eef0;color:var(--ink)}
+.btn-voice{min-height:62px;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-voice.recording{background:#9e1835;animation:pulse 1.3s infinite}
+@keyframes pulse{50%{transform:scale(.985);box-shadow:0 0 0 7px rgba(181,31,61,.12)}}
+.status{font-size:13px;text-align:center;color:var(--muted);margin-top:9px;min-height:20px}
+.result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.result-head h2{font-size:17px;margin:0}.count{font-size:12px;color:var(--muted)}
+.result{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:#fff}
+.result-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.result-no{font-size:12px;color:var(--muted);font-weight:700}
+.result-text{font-size:15px;line-height:1.55;margin:7px 0 10px;white-space:pre-wrap}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.small{padding:8px 11px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:12px;font-weight:750}
+.copy{color:var(--red)}.danger{color:#b42318}.success{color:var(--green)}
+.empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:14px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:50}
+.nav-inner{max-width:760px;margin:auto;display:flex;justify-content:space-around}
+.nav button{border:0;background:transparent;padding:10px 18px 9px;color:var(--muted);font-size:11px;font-weight:700}
+.nav button.active{color:var(--red)}.nav-icon{font-size:21px;display:block;line-height:22px}
+.panel{display:none}.panel.active{display:block}
+.history-item{padding:12px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}
+.history-date{font-weight:800}.history-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.install{display:none;background:#f9edf0;border:1px solid #f0c5cd;color:#6e1728;border-radius:12px;padding:10px 12px;font-size:12px;margin-bottom:12px}
+.note{font-size:12px;color:var(--muted);line-height:1.5}
+.footer{text-align:center;color:var(--muted);font-size:11px;padding:10px 0}
+.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#242022;color:#fff;padding:10px 14px;border-radius:999px;font-size:12px;z-index:100;display:none;white-space:nowrap}
+@media(min-width:700px){.content{padding:20px}.card{padding:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+  <h1>🎙️ SITAMPAN Voice</h1>
+  <p>Input aktivitas harian dengan suara — mobile friendly & gratis</p>
+</header>
+
+<main class="content">
+  <div id="installBox" class="install">📱 Aplikasi dapat dipasang ke layar utama. Gunakan menu browser <b>Tambahkan ke layar utama</b>.</div>
+
+  <section id="panelInput" class="panel active">
+    <div class="card">
+      <div class="field">
+        <label for="dateInput">Tanggal</label>
+        <input id="dateInput" type="date">
+      </div>
+
+      <div class="field activity-wrap">
+        <label>Jenis Aktivitas</label>
+        <input id="activitySearch" class="search" autocomplete="off" placeholder="🔍 Cari dari 117 jenis aktivitas..." />
+        <div id="activityList" class="activity-list"></div>
+        <div id="selectedActivity" class="selected-box" style="margin-top:8px">Belum memilih jenis aktivitas.</div>
+      </div>
+
+      <button id="voiceBtn" class="btn btn-primary btn-voice">🎙️ <span>Mulai Input Suara</span></button>
+      <div id="status" class="status">Siap menerima suara.</div>
+
+      <div class="note" style="margin-top:12px">
+        Tip: pilih jenis aktivitas terlebih dahulu, lalu tekan mikrofon dan ucapkan kalimat aktivitas. Hasil dapat diedit sebelum disalin.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="result-head">
+        <h2>Hasil Aktivitas</h2>
+        <span id="resultCount" class="count">0 hasil</span>
+      </div>
+      <div id="results"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="copyAllBtn" class="btn btn-secondary" style="flex:1">📋 Salin Semua</button>
+        <button id="clearBtn" class="btn btn-secondary" style="flex:1">🧹 Bersihkan</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="panelHistory" class="panel">
+    <div class="card">
+      <div class="result-head"><h2>Riwayat Aktivitas</h2><span id="historyCount" class="count"></span></div>
+      <div id="history"></div>
+    </div>
+  </section>
+
+  <section id="panelInfo" class="panel">
+    <div class="card">
+      <h2 style="margin-top:0">Tentang SITAMPAN Voice</h2>
+      <p style="line-height:1.55">Aplikasi ringan untuk membantu mengubah ucapan menjadi tulisan aktivitas harian. Master pilihan aktivitas berisi 117 jenis aktivitas dari daftar SITAMPAN yang digunakan sebagai dasar aplikasi.</p>
+      <p class="note">Data aktivitas disimpan di perangkat menggunakan localStorage. Aplikasi ini tidak memerlukan server atau API berbayar untuk fitur dasar voice-to-text. Dukungan pengenalan suara mengikuti kemampuan browser/perangkat.</p>
+      <button id="installBtn" class="btn btn-primary" style="margin-top:8px">📱 Pasang sebagai Aplikasi</button>
+    </div>
+  </section>
+</main>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="active" data-panel="panelInput"><span class="nav-icon">🎙️</span>Input</button>
+    <button data-panel="panelHistory"><span class="nav-icon">📋</span>Riwayat</button>
+    <button data-panel="panelInfo"><span class="nav-icon">ℹ️</span>Tentang</button>
+  </div>
+</nav>
+<div id="toast" class="toast"></div>
+</div>
+
+<script>
+const ACTIVITIES = [{"no": 1, "name": "Menganalisa"}, {"no": 2, "name": "Menata"}, {"no": 3, "name": "Menelaah"}, {"no": 4, "name": "Menyusun"}, {"no": 5, "name": "Melakukan pemulihan"}, {"no": 6, "name": "Mengawasi"}, {"no": 7, "name": "Mengevakuasi"}, {"no": 8, "name": "Melakukan penyuluhan"}, {"no": 9, "name": "Melakukan penindakan"}, {"no": 10, "name": "Melakukan kegiatan bendahara"}, {"no": 11, "name": "Mengembangkan"}, {"no": 12, "name": "Memasang"}, {"no": 13, "name": "Memperbaiki"}, {"no": 14, "name": "Mengecek"}, {"no": 15, "name": "Menyurvey"}, {"no": 16, "name": "Mengumpulkan data"}, {"no": 17, "name": "Mengklasifikasi"}, {"no": 18, "name": "Mengidentifikasi"}, {"no": 19, "name": "Menyiapkan bahan"}, {"no": 20, "name": "Melakukan koordinasi"}, {"no": 21, "name": "Menyusun bahan rekomendasi"}, {"no": 22, "name": "Mengolah data"}, {"no": 23, "name": "Menghimpun"}, {"no": 24, "name": "Merancang"}, {"no": 25, "name": "Mendampingi"}, {"no": 26, "name": "Mendokumentasi"}, {"no": 27, "name": "Menerima data/ laporan"}, {"no": 28, "name": "Menerima konsultasi/ pengaduan"}, {"no": 29, "name": "Menerima tamu"}, {"no": 30, "name": "Mengikuti rapat internal OPD/ unit kerja"}, {"no": 31, "name": "Menerjemahkan bahasa"}, {"no": 32, "name": "Mencatat"}, {"no": 33, "name": "Mengecek Jadwal"}, {"no": 34, "name": "Menyiapkan alat komunikasi"}, {"no": 35, "name": "Memeriksa kelengkapan"}, {"no": 36, "name": "Mengoperasikan"}, {"no": 37, "name": "Menyajikan konsumsi"}, {"no": 38, "name": "Mengatur kenyamanan ruang"}, {"no": 39, "name": "Memelihara peralatan/ perlengkapan makan"}, {"no": 40, "name": "Memelihara"}, {"no": 41, "name": "Melayani antar/ jemput Pejabat/ Pegawai"}, {"no": 42, "name": "Melayani"}, {"no": 43, "name": "Membersihkan mobil/ kendaraan dinas"}, {"no": 44, "name": "Membersihkan"}, {"no": 45, "name": "Melakukan pengamanan dan penertiban"}, {"no": 46, "name": "Mencatat pungutan retribusi"}, {"no": 47, "name": "Melaporkan pungutan retribusi"}, {"no": 48, "name": "Menyiapkan peralatan kebersihan"}, {"no": 49, "name": "Menjaga kebersihan"}, {"no": 50, "name": "Menyiapkan peralatan kebutuhan kegiatan"}, {"no": 51, "name": "Memberi usul dan saran pada pimpinan"}, {"no": 52, "name": "Mengikuti rapat/ koordinasi/ sosialisasi/ konsultasi/ acara dalam daerah"}, {"no": 53, "name": "Mengonsep Keputusan/ Perjanjian/ MoU"}, {"no": 54, "name": "Mengonsep Peraturan Daerah"}, {"no": 55, "name": "Mengonsep Peraturan Bupati"}, {"no": 56, "name": "Mengonsep surat/ dokumen"}, {"no": 57, "name": "Melakukan penjurian"}, {"no": 58, "name": "Melelang"}, {"no": 59, "name": "Meliput"}, {"no": 60, "name": "Memandu"}, {"no": 61, "name": "Memarkir/ mengatur parkir"}, {"no": 62, "name": "Memasukkan"}, {"no": 63, "name": "Membayarkan"}, {"no": 64, "name": "Membuat catalog"}, {"no": 65, "name": "Membuat kliping"}, {"no": 66, "name": "Membuat laporan"}, {"no": 67, "name": "Membuat notulen"}, {"no": 68, "name": "Membuat rancangan gambar"}, {"no": 69, "name": "Membuat tabulasi"}, {"no": 70, "name": "Membukukan"}, {"no": 71, "name": "Memfotocopy"}, {"no": 72, "name": "Memediasi"}, {"no": 73, "name": "Memeriksa"}, {"no": 74, "name": "Memfasilitasi"}, {"no": 75, "name": "Memindahkan"}, {"no": 76, "name": "Memotret"}, {"no": 77, "name": "Memproses"}, {"no": 78, "name": "Mempublikasikan"}, {"no": 79, "name": "Memungut retribusi"}, {"no": 80, "name": "Memusnahkan"}, {"no": 81, "name": "Memverifikasi"}, {"no": 82, "name": "Menagih"}, {"no": 83, "name": "Menangani"}, {"no": 84, "name": "Menangkap"}, {"no": 85, "name": "Mencetak"}, {"no": 86, "name": "Mencuci"}, {"no": 87, "name": "Mendesain"}, {"no": 88, "name": "Mendiskusikan"}, {"no": 89, "name": "Meneliti"}, {"no": 90, "name": "Menera ulang"}, {"no": 91, "name": "Menertibkan"}, {"no": 92, "name": "Mengagenda"}, {"no": 93, "name": "Mengamankan"}, {"no": 94, "name": "Mengarsipkan"}, {"no": 95, "name": "Mengaudit"}, {"no": 96, "name": "Mengawal"}, {"no": 97, "name": "Mengawasi kegiatan"}, {"no": 98, "name": "Mengelola data"}, {"no": 99, "name": "Mengelompokkan/ menggolongkan"}, {"no": 100, "name": "Mengetik"}, {"no": 101, "name": "Menggeledah"}, {"no": 102, "name": "Menghubungi"}, {"no": 103, "name": "Mengurus surat-surat"}, {"no": 104, "name": "Mengirimkan surat"}, {"no": 105, "name": "Mengontrol"}, {"no": 106, "name": "Menguji"}, {"no": 107, "name": "Mengukur"}, {"no": 108, "name": "Menyapu"}, {"no": 109, "name": "Menyebarluaskan"}, {"no": 110, "name": "Menyetorkan"}, {"no": 111, "name": "Menyeting"}, {"no": 112, "name": "Menyidik"}, {"no": 113, "name": "Melaporkan hasil pekerjaan"}, {"no": 114, "name": "Mengikuti upacara"}, {"no": 115, "name": "Mengikuti penerimaan kunjungan kerja"}, {"no": 116, "name": "Melaksanakan tugas lain"}, {"no": 117, "name": "Mengikuti Apel."}];
+const $ = id => document.getElementById(id);
+const STORAGE_KEY = 'sitampanVoiceRecordsV1';
+const dateInput = $('dateInput');
+const activitySearch = $('activitySearch');
+const activityList = $('activityList');
+const selectedActivity = $('selectedActivity');
+const voiceBtn = $('voiceBtn');
+const statusEl = $('status');
+const resultsEl = $('results');
+const resultCount = $('resultCount');
+let selectedActivityObj = null;
+let results = [];
+let recognition = null;
+let isRecording = false;
+let deferredPrompt = null;
+
+dateInput.value = new Date().toISOString().slice(0,10);
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+function formatDate(d){
+  if(!d) return '-';
+  const x = new Date(d+'T00:00:00');
+  return x.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
+}
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.style.display='block';
+  clearTimeout(window.__toast); window.__toast=setTimeout(()=>t.style.display='none',1800);
+}
+function renderActivityList(filter=''){
+  const q=filter.trim().toLowerCase();
+  const matches=ACTIVITIES.filter(a=>a.name.toLowerCase().includes(q)).slice(0,60);
+  activityList.innerHTML = matches.length ? matches.map(a=>`
+    <div class="activity-item" data-no="${a.no}">
+      <span class="activity-no">#${a.no}</span>${esc(a.name)}
+    </div>`).join('') :
+    '<div class="empty">Aktivitas tidak ditemukan.</div>';
+  activityList.style.display='block';
+}
+function selectActivity(no){
+  selectedActivityObj=ACTIVITIES.find(a=>a.no===Number(no)) || null;
+  selectedActivity.textContent=selectedActivityObj ? `✓ #${selectedActivityObj.no} — ${selectedActivityObj.name}` : 'Belum memilih jenis aktivitas.';
+  activitySearch.value=selectedActivityObj ? selectedActivityObj.name : '';
+  activityList.style.display='none';
+}
+activitySearch.addEventListener('focus',()=>renderActivityList(activitySearch.value));
+activitySearch.addEventListener('input',()=>renderActivityList(activitySearch.value));
+activityList.addEventListener('click',e=>{
+  const item=e.target.closest('.activity-item'); if(item) selectActivity(item.dataset.no);
+});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.activity-wrap')) activityList.style.display='none';
+});
+
+function renderResults(){
+  resultCount.textContent=`${results.length} hasil`;
+  if(!results.length){
+    resultsEl.innerHTML='<div class="empty">Belum ada hasil. Pilih aktivitas lalu gunakan tombol mikrofon.</div>';
+    return;
+  }
+  resultsEl.innerHTML=results.map((r,i)=>`
+    <div class="result" data-id="${r.id}">
+      <div class="result-top">
+        <div class="result-no">#${i+1} · ${esc(r.activity)}</div>
+        <button class="small danger delete-one" title="Hapus">🗑️</button>
+      </div>
+      <textarea class="text-edit result-text" rows="3">${esc(r.text)}</textarea>
+      <div class="actions">
+        <button class="small copy copy-one">📋 Salin</button>
+        <button class="small save-one">💾 Simpan Perubahan</button>
+      </div>
+    </div>`).join('');
+}
+resultsEl.addEventListener('click', async e=>{
+  const box=e.target.closest('.result'); if(!box) return;
+  const id=box.dataset.id;
+  const r=results.find(x=>x.id===id);
+  if(e.target.closest('.copy-one')){
+    const txt=box.querySelector('textarea').value.trim();
+    await copyText(txt); toast('✓ Tulisan berhasil disalin');
+  }
+  if(e.target.closest('.save-one')){
+    const txt=box.querySelector('textarea').value.trim();
+    if(r){r.text=txt; saveDraft(); renderResults(); toast('✓ Perubahan disimpan');}
+  }
+  if(e.target.closest('.delete-one')){
+    results=results.filter(x=>x.id!==id); renderResults(); toast('Hasil dihapus');
+  }
+});
+async function copyText(txt){
+  try{
+    await navigator.clipboard.writeText(txt);
+  }catch(err){
+    const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); ta.remove();
+  }
+}
+$('copyAllBtn').addEventListener('click',async()=>{
+  if(!results.length) return toast('Belum ada hasil');
+  const txt=results.map((r,i)=>`${i+1}. ${r.text}`).join('\n');
+  await copyText(txt); toast('✓ Semua hasil berhasil disalin');
+});
+$('clearBtn').addEventListener('click',()=>{
+  if(!results.length) return;
+  if(confirm('Hapus semua hasil pada input ini?')){results=[];renderResults();}
+});
+
+function saveDraft(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify({
+    date:dateInput.value,
+    activity:selectedActivityObj,
+    results
+  }));
+}
+function loadDraft(){
+  try{
+    const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    if(x && x.date===dateInput.value){
+      selectedActivityObj=x.activity||null; results=x.results||[];
+      selectedActivity.textContent=selectedActivityObj ? `✓ #${selectedActivityObj.no} — ${selectedActivityObj.name}` : 'Belum memilih jenis aktivitas.';
+      activitySearch.value=selectedActivityObj?.name||'';
+    }
+  }catch(e){}
+  renderResults();
+}
+dateInput.addEventListener('change',()=>{
+  results=[]; selectedActivityObj=null; activitySearch.value='';
+  selectedActivity.textContent='Belum memilih jenis aktivitas.'; renderResults();
+});
+
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SpeechRecognition){
+  recognition=new SpeechRecognition();
+  recognition.lang='id-ID';
+  recognition.continuous=false;
+  recognition.interimResults=true;
+  recognition.maxAlternatives=1;
+  recognition.onstart=()=>{
+    isRecording=true; voiceBtn.classList.add('recording');
+    voiceBtn.innerHTML='🔴 <span>Mendengarkan... tekan untuk berhenti</span>';
+    statusEl.textContent='Silakan bicara dengan jelas.';
+  };
+  recognition.onresult=e=>{
+    let interim='', finalText='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const txt=e.results[i][0].transcript;
+      if(e.results[i].isFinal) finalText+=txt;
+      else interim+=txt;
+    }
+    statusEl.textContent=finalText ? `Terdengar: ${finalText}` : (interim ? `Mendengar: ${interim}` : 'Mendengarkan...');
+    if(finalText.trim()){
+      const clean=finalText.trim();
+      results.push({
+        id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+        date:dateInput.value,
+        activity:selectedActivityObj?.name||'Tanpa jenis aktivitas',
+        activityNo:selectedActivityObj?.no||null,
+        text:clean
+      });
+      saveDraft(); renderResults();
+    }
+  };
+  recognition.onerror=e=>{
+    const msg={not-allowed:'Izin mikrofon ditolak. Aktifkan izin mikrofon pada browser.',
+      no-speech:'Tidak terdengar suara. Silakan coba lagi.',network:'Pengenalan suara membutuhkan koneksi internet pada sebagian browser.',
+      audio-capture:'Mikrofon tidak ditemukan.'}[e.error]||`Voice error: ${e.error}`;
+    statusEl.textContent=msg; stopVoice();
+  };
+  recognition.onend=()=>stopVoice(false);
+}else{
+  statusEl.textContent='Browser ini belum mendukung voice-to-text. Gunakan Chrome/Edge yang mendukung Speech Recognition.';
+}
+function stopVoice(update=true){
+  isRecording=false; voiceBtn.classList.remove('recording');
+  voiceBtn.innerHTML='🎙️ <span>Mulai Input Suara</span>';
+  if(update) statusEl.textContent='Siap menerima suara.';
+}
+voiceBtn.addEventListener('click',()=>{
+  if(!selectedActivityObj) return toast('Pilih jenis aktivitas terlebih dahulu.');
+  if(!recognition) return toast('Voice-to-text tidak didukung browser ini.');
+  if(isRecording){recognition.stop();return;}
+  try{recognition.start();}catch(e){statusEl.textContent='Tidak dapat memulai mikrofon. Coba lagi.';}
+});
+
+function loadHistory(){
+  const all=JSON.parse(localStorage.getItem('sitampanVoiceHistoryV1')||'[]');
+  $('historyCount').textContent=`${all.length} sesi`;
+  $('history').innerHTML=all.length ? all.slice().reverse().map(x=>`
+    <div class="history-item">
+      <div class="history-date">${esc(formatDate(x.date))}</div>
+      <div class="history-meta">${esc(x.activity)} · ${x.count} hasil</div>
+    </div>`).join('') :
+    '<div class="empty">Belum ada riwayat tersimpan.</div>';
+}
+function saveCurrentToHistory(){
+  if(!results.length) return toast('Belum ada hasil untuk disimpan.');
+  const all=JSON.parse(localStorage.getItem('sitampanVoiceHistoryV1')||'[]');
+  all.push({date:dateInput.value,activity:selectedActivityObj?.name||'Tanpa jenis aktivitas',count:results.length,items:results});
+  localStorage.setItem('sitampanVoiceHistoryV1',JSON.stringify(all));
+  toast('✓ Sesi disimpan ke riwayat'); loadHistory();
+}
+$('results').insertAdjacentHTML('afterend','<button id="saveHistoryBtn" class="btn btn-secondary" style="width:100%;margin-top:8px">💾 Simpan Sesi ke Riwayat</button>');
+$('saveHistoryBtn').addEventListener('click',saveCurrentToHistory);
+
+document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); $(btn.dataset.panel).classList.add('active');
+  if(btn.dataset.panel==='panelHistory') loadHistory();
+}));
+
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e; $('installBox').style.display='block';
+});
+$('installBtn').addEventListener('click',async()=>{
+  if(deferredPrompt){deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null;}
+  else toast('Gunakan menu browser → Tambahkan ke layar utama.');
+});
+
+if('serviceWorker' in navigator && location.protocol!=='file:'){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+loadDraft();
+renderResults();
+</script>
+</body>
+</html>
