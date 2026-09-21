@@ -1,11 +1,11 @@
 {
-  "name":"SITAMPAN Voice V6",
+  "name":"SITAMPAN Voice V7",
   "short_name":"SITAMPAN Voice",
-  "description":"Pencatatan aktivitas harian berbasis suara.",
+  "description":"Pencatatan aktivitas harian berbasis suara dengan mode pintar dan tampilan terang/gelap.",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
-  "background_color":"#f5f3f4",
+  "background_color":"#f4f6f8",
   "theme_color":"#a91f3c",
   "lang":"id-ID",
   "icons":[]
