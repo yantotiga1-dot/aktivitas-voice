@@ -3,861 +3,210 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#b51f3d">
-<meta name="description" content="SITAMPAN Voice - input aktivitas harian dengan suara">
+<meta name="theme-color" content="#a91f3c">
+<meta name="description" content="AKTIVITAS Voice V6 - pencatatan aktivitas harian berbasis suara">
 <link rel="manifest" href="manifest.json">
-<title>SITAMPAN Voice</title>
+<title>AKTIVITAS Voice V6</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
-:root{--red:#b51f3d;--red2:#e05268;--bg:#f6f3f4;--card:#fff;--ink:#261f22;--muted:#766d73;--line:#e5dfe1;--green:#18864b;--shadow:0 8px 28px rgba(38,31,34,.08)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.app{max-width:760px;margin:auto;min-height:100vh;padding-bottom:90px}
-.header{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;padding:18px 18px 16px;box-shadow:0 5px 18px rgba(0,0,0,.12)}
-.header h1{margin:0;font-size:22px}.header p{margin:4px 0 0;font-size:13px;opacity:.9}
-.content{padding:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
-label{display:block;font-weight:750;font-size:13px;margin-bottom:7px}
-input[type=date],.search,.text-edit{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:#fff;color:var(--ink);outline:none}
-input:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181,31,61,.1)}
-.field{margin-bottom:15px}
-.activity-wrap{position:relative}
-.activity-list{position:absolute;z-index:30;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:5px;max-height:280px;overflow:auto;box-shadow:var(--shadow);display:none}
-.activity-item{padding:12px 13px;border-bottom:1px solid #f0ebed;font-size:14px}
-.activity-item:last-child{border-bottom:0}.activity-item:hover,.activity-item.selected{background:#fff1f4}
-.activity-no{color:var(--muted);font-size:11px;margin-right:8px}
-.selected-box{background:#fff6f7;border:1px solid #f1c7cf;padding:11px 12px;border-radius:12px;font-size:14px}
-.btn{border:0;border-radius:13px;padding:13px 16px;font-weight:800}
-.btn-primary{background:var(--red);color:#fff;width:100%}
-.btn-secondary{background:#f4eef0;color:var(--ink)}
-.btn-voice{min-height:62px;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px}
-.btn-voice.recording{background:#9e1835;animation:pulse 1.3s infinite}
-@keyframes pulse{50%{transform:scale(.985);box-shadow:0 0 0 7px rgba(181,31,61,.12)}}
-.status{font-size:13px;text-align:center;color:var(--muted);margin-top:9px;min-height:20px}
-.result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.result-head h2{font-size:17px;margin:0}.count{font-size:12px;color:var(--muted)}
-.result{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:#fff}
-.result-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.result-no{font-size:12px;color:var(--muted);font-weight:700}
-.result-text{font-size:15px;line-height:1.55;margin:7px 0 10px;white-space:pre-wrap}
-.actions{display:flex;gap:7px;flex-wrap:wrap}
-.small{padding:8px 11px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:12px;font-weight:750}
-.copy{color:var(--red)}.danger{color:#b42318}.success{color:var(--green)}
-.empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:14px}
-.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:50}
-.nav-inner{max-width:760px;margin:auto;display:flex;justify-content:space-around}
-.nav button{border:0;background:transparent;padding:10px 18px 9px;color:var(--muted);font-size:11px;font-weight:700}
-.nav button.active{color:var(--red)}.nav-icon{font-size:21px;display:block;line-height:22px}
-.panel{display:none}.panel.active{display:block}
-.history-item{padding:12px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}
-.history-date{font-weight:800}.history-meta{font-size:12px;color:var(--muted);margin-top:3px}
-.install{display:none;background:#f9edf0;border:1px solid #f0c5cd;color:#6e1728;border-radius:12px;padding:10px 12px;font-size:12px;margin-bottom:12px}
-.note{font-size:12px;color:var(--muted);line-height:1.5}
-.footer{text-align:center;color:var(--muted);font-size:11px;padding:10px 0}
-.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#242022;color:#fff;padding:10px 14px;border-radius:999px;font-size:12px;z-index:100;display:none;white-space:nowrap}
-.auth-screen{position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,#f6f3f4,#fff);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
-.auth-card{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
-.auth-logo{text-align:center;font-size:34px}.auth-card h1{text-align:center;margin:6px 0 2px;font-size:24px}.auth-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:18px}
-.auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:#f5eff1;border-radius:12px;padding:4px;margin-bottom:16px}.auth-tabs button{border:0;background:transparent;padding:10px;border-radius:9px;font-weight:800;color:var(--muted)}.auth-tabs button.active{background:#fff;color:var(--red);box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.auth-error{background:#fff1f2;border:1px solid #f0c5cd;color:#8d1930;border-radius:11px;padding:10px;font-size:12px;display:none;margin-bottom:12px}
-.auth-note{font-size:11px;line-height:1.5;color:var(--muted);margin-top:12px}
-.user-badge{font-size:12px;opacity:.95;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px}.user-badge button{border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:9px;padding:6px 9px;font-size:11px;font-weight:700}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}.stat .v{font-size:23px;font-weight:850;color:var(--red)}.stat .l{font-size:11px;color:var(--muted);margin-top:3px}
-.recap-row{display:flex;gap:8px}.recap-row>*{flex:1}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.data-table{width:100%;border-collapse:collapse;min-width:560px}.data-table th,.data-table td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:12px;vertical-align:top}.data-table th{background:#f8f2f4;font-weight:800}.data-table tr:last-child td{border-bottom:0}
-.logout{background:rgba(255,255,255,.12)!important}
-@media(max-width:480px){.stat-grid{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}.recap-row{display:grid;grid-template-columns:1fr 1fr}.recap-row .btn{grid-column:1/-1}}
-
+:root{--red:#a91f3c;--red2:#d64a63;--red-soft:#fff0f3;--bg:#f5f3f4;--card:#fff;--ink:#262124;--muted:#766e73;--line:#e5dfe2;--green:#18864b;--amber:#9a6700;--shadow:0 8px 28px rgba(38,31,34,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:820px;margin:auto;min-height:100vh;padding-bottom:92px}.header{position:sticky;top:0;z-index:40;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;padding:16px 16px 14px;box-shadow:0 5px 18px rgba(0,0,0,.12)}.header-row{display:flex;justify-content:space-between;gap:12px;align-items:center}.header h1{margin:0;font-size:21px}.header p{margin:3px 0 0;font-size:12px;opacity:.9}.user-badge{display:flex;align-items:center;gap:8px;font-size:12px;margin-top:8px}.user-badge button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.1);color:#fff;border-radius:9px;padding:6px 9px;font-size:11px;font-weight:800}.content{padding:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}h2{font-size:17px;margin:0 0 12px}.field{margin-bottom:14px}label{display:block;font-weight:800;font-size:13px;margin-bottom:7px}input,select,textarea{border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);outline:none}input[type=date],input[type=text],input[type=password],input[type=search],select,.text-edit{width:100%;padding:11px 12px}textarea{resize:vertical;line-height:1.5}input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(169,31,60,.1)}.btn{border:0;border-radius:13px;padding:12px 15px;font-weight:800}.btn-primary{background:var(--red);color:#fff}.btn-secondary{background:#f2edef;color:var(--ink)}.btn-danger{background:#fff0f1;color:#a51e35}.btn-green{background:#eaf7ef;color:#166b3d}.btn:disabled{opacity:.5;cursor:not-allowed}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.note{font-size:12px;color:var(--muted);line-height:1.5}.small-note{font-size:11px;color:var(--muted)}.status{text-align:center;color:var(--muted);font-size:13px;min-height:20px;margin-top:9px}.voice-btn{width:100%;min-height:66px;font-size:16px;display:flex;align-items:center;justify-content:center;gap:9px}.voice-btn.recording{background:#8e1732;animation:pulse 1.2s infinite}@keyframes pulse{50%{transform:scale(.985);box-shadow:0 0 0 7px rgba(169,31,60,.14)}}.mode-row{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#faf7f8;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}.switch{position:relative;width:42px;height:24px;display:inline-block}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;background:#d9d2d5;border-radius:999px;transition:.2s}.slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px #0002}.switch input:checked+.slider{background:var(--red)}.switch input:checked+.slider:before{transform:translateX(18px)}.activity-wrap{position:relative}.activity-list{position:absolute;z-index:60;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:5px;max-height:290px;overflow:auto;box-shadow:var(--shadow);display:none}.activity-item{padding:11px 12px;border-bottom:1px solid #f0ebed;font-size:13px}.activity-item:last-child{border-bottom:0}.activity-item:hover{background:var(--red-soft)}.activity-no{color:var(--muted);font-size:11px;margin-right:8px}.selected-box{background:var(--red-soft);border:1px solid #f1c7cf;padding:10px 12px;border-radius:12px;font-size:13px}.result-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.count{font-size:11px;color:var(--muted)}.result{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:#fff}.result-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.result-no{font-size:11px;color:var(--muted);font-weight:800}.result textarea{margin:8px 0;width:100%;min-height:82px}.result-actions{display:flex;gap:7px;flex-wrap:wrap}.small-btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 10px;font-size:11px;font-weight:800}.empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:13px}.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:100}.nav-inner{max-width:820px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr)}.nav button{border:0;background:transparent;padding:8px 3px 9px;color:var(--muted);font-size:10px;font-weight:800}.nav button.active{color:var(--red)}.nav-icon{font-size:20px;display:block;line-height:21px}.panel{display:none}.panel.active{display:block}.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.stat .v{font-size:23px;font-weight:900;color:var(--red)}.stat .l{font-size:10px;color:var(--muted);margin-top:3px}.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mini-bar{display:flex;align-items:center;gap:8px;margin:9px 0}.mini-bar-label{width:130px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bar-track{height:8px;background:#eee8ea;border-radius:99px;flex:1;overflow:hidden}.bar-fill{height:100%;background:var(--red);border-radius:99px}.mini-bar-count{width:25px;text-align:right;font-size:11px;font-weight:800}.history-item{padding:12px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}.history-title{font-weight:850;font-size:13px}.history-meta{font-size:11px;color:var(--muted);margin-top:3px}.history-text{font-size:13px;line-height:1.5;margin-top:6px}.history-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.data-table{width:100%;border-collapse:collapse;min-width:650px}.data-table th,.data-table td{padding:9px;border-bottom:1px solid var(--line);text-align:left;font-size:11px;vertical-align:top}.data-table th{background:#f8f2f4;font-weight:900}.data-table tr:last-child td{border-bottom:0}.auth-screen{position:fixed;inset:0;z-index:300;background:linear-gradient(135deg,#f7f3f4,#fff);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}.auth-card{width:min(440px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}.auth-logo{text-align:center;font-size:36px}.auth-card h1{text-align:center;margin:5px 0 2px;font-size:24px}.auth-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:18px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:#f5eff1;border-radius:12px;padding:4px;margin-bottom:16px}.auth-tabs button{border:0;background:transparent;padding:10px;border-radius:9px;font-weight:850;color:var(--muted)}.auth-tabs button.active{background:#fff;color:var(--red);box-shadow:0 2px 8px #0000000d}.auth-error{background:#fff0f2;border:1px solid #f0c5cd;color:#8d1930;border-radius:11px;padding:10px;font-size:12px;display:none;margin-bottom:12px}.install{display:none;background:var(--red-soft);border:1px solid #f0c5cd;color:#6e1728;border-radius:12px;padding:10px 12px;font-size:12px;margin-bottom:12px}.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#242022;color:#fff;padding:10px 14px;border-radius:999px;font-size:12px;z-index:500;display:none;white-space:nowrap;box-shadow:0 5px 18px #0003}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#f2edef;color:var(--muted);font-size:10px;font-weight:800}.danger-text{color:#a51e35}.success-text{color:var(--green)}.backup-box{border:1px dashed #d6cdd1;border-radius:14px;padding:13px;background:#fcfafb}.footer{text-align:center;color:var(--muted);font-size:10px;padding:8px}.search-row{display:flex;gap:8px}.search-row>*:first-child{flex:1}.sort-row{display:flex;gap:8px;align-items:center}.sort-row select{flex:1}.draft-banner{background:#fff8e8;border:1px solid #eed7a1;color:#795b11;border-radius:12px;padding:9px 11px;font-size:11px;margin-bottom:12px;display:none}
+@media(max-width:520px){.stat-grid{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}.grid3{grid-template-columns:1fr 1fr}.quick-grid{grid-template-columns:1fr}.mini-bar-label{width:105px}.content{padding:12px}.card{padding:14px}}
 @media(min-width:700px){.content{padding:20px}.card{padding:20px}}
 </style>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-
 <div id="authScreen" class="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">🎙️</div>
-    <h1>SITAMPAN Voice</h1>
-    <div class="auth-sub">Aktivitas harian berbasis suara</div>
-
-    <div class="auth-tabs">
-      <button id="tabLogin" class="active">Masuk</button>
-      <button id="tabRegister">Daftar</button>
-    </div>
-
+    <h1>AKTIVITAS Voice</h1>
+    <div class="auth-sub">V6 · pencatatan aktivitas harian lebih rapi</div>
+    <div class="auth-tabs"><button id="tabLogin" class="active">Masuk</button><button id="tabRegister">Daftar</button></div>
     <div id="authError" class="auth-error"></div>
-
     <form id="loginForm">
-      <div class="field">
-        <label for="loginUsername">Username</label>
-        <input id="loginUsername" class="search" autocomplete="username" required placeholder="contoh: tomi">
-      </div>
-      <div class="field">
-        <label for="loginPassword">Password</label>
-        <input id="loginPassword" class="search" type="password" autocomplete="current-password" required placeholder="Masukkan password">
-      </div>
-      <button class="btn btn-primary" type="submit">🔐 Masuk</button>
+      <div class="field"><label for="loginUsername">Username</label><input id="loginUsername" type="text" autocomplete="username" required placeholder="contoh: tomi"></div>
+      <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Masukkan password"></div>
+      <button class="btn btn-primary" style="width:100%" type="submit">🔐 Masuk</button>
     </form>
-
     <form id="registerForm" style="display:none">
-      <div class="field">
-        <label for="registerName">Nama Pengguna</label>
-        <input id="registerName" class="search" required placeholder="Nama lengkap">
-      </div>
-      <div class="field">
-        <label for="registerUsername">Username</label>
-        <input id="registerUsername" class="search" autocomplete="username" required placeholder="tanpa spasi">
-      </div>
-      <div class="field">
-        <label for="registerPassword">Password</label>
-        <input id="registerPassword" class="search" type="password" autocomplete="new-password" required minlength="4" placeholder="Minimal 4 karakter">
-      </div>
-      <div class="field">
-        <label for="registerPassword2">Ulangi Password</label>
-        <input id="registerPassword2" class="search" type="password" autocomplete="new-password" required minlength="4">
-      </div>
-      <button class="btn btn-primary" type="submit">➕ Buat Pengguna</button>
+      <div class="field"><label for="registerName">Nama Pengguna</label><input id="registerName" type="text" required placeholder="Nama lengkap"></div>
+      <div class="field"><label for="registerUsername">Username</label><input id="registerUsername" type="text" autocomplete="username" required placeholder="tanpa spasi"></div>
+      <div class="field"><label for="registerPassword">Password</label><input id="registerPassword" type="password" autocomplete="new-password" required minlength="4" placeholder="Minimal 4 karakter"></div>
+      <div class="field"><label for="registerPassword2">Ulangi Password</label><input id="registerPassword2" type="password" autocomplete="new-password" required minlength="4"></div>
+      <button class="btn btn-primary" style="width:100%" type="submit">➕ Buat Pengguna</button>
     </form>
-
-    <div class="auth-note">
-      Akun dan data disimpan <b>secara lokal pada perangkat/browser</b>. Ini bukan sistem login server dan tidak cocok untuk menyimpan password atau data yang sangat sensitif.
-    </div>
+    <div class="note" style="margin-top:12px">Akun dan data tersimpan lokal di browser/perangkat. Login ini bukan autentikasi server.</div>
   </div>
 </div>
 
 <div id="appShell" class="app" style="display:none">
 <header class="header">
-  <h1>🎙️ SITAMPAN Voice</h1>
-  <p>Input aktivitas harian dengan suara — mobile friendly & gratis</p>
-  <div class="user-badge"><span>👤 <b id="currentUserName">-</b></span><button id="logoutBtn" class="logout">Keluar</button></div>
+  <div class="header-row"><div><h1>🎙️ AKTIVITAS Voice</h1><p>Input aktivitas harian berbasis suara</p></div><span class="badge" style="background:#ffffff22;color:#fff">V6</span></div>
+  <div class="user-badge"><span>👤 <b id="currentUserName">-</b></span><button id="logoutBtn">Keluar</button></div>
 </header>
-
 <main class="content">
-
-  <section id="panelDashboard" class="panel">
-    <div class="card">
-      <div class="result-head"><h2>Dashboard</h2><span id="dashDate" class="count"></span></div>
-      <div class="stat-grid">
-        <div class="stat"><div id="statToday" class="v">0</div><div class="l">Aktivitas Hari Ini</div></div>
-        <div class="stat"><div id="statMonth" class="v">0</div><div class="l">Aktivitas Bulan Ini</div></div>
-        <div class="stat"><div id="statTotal" class="v">0</div><div class="l">Total Aktivitas</div></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="result-head"><h2>Aktivitas Terbaru</h2><span class="count">5 terakhir</span></div>
-      <div id="dashRecent"></div>
-    </div>
-    <div class="card">
-      <button id="dashInputBtn" class="btn btn-primary">🎙️ Input Aktivitas Sekarang</button>
-    </div>
+  <div id="installBox" class="install">📱 Aplikasi dapat dipasang ke layar utama. Tekan tombol pasang atau gunakan menu browser.</div>
+  <section id="panelDashboard" class="panel active">
+    <div class="card"><div class="result-head"><h2>Dashboard</h2><span id="dashDate" class="count"></span></div><div class="stat-grid"><div class="stat"><div id="statToday" class="v">0</div><div class="l">Aktivitas Hari Ini</div></div><div class="stat"><div id="statMonth" class="v">0</div><div class="l">Aktivitas Bulan Ini</div></div><div class="stat"><div id="statTotal" class="v">0</div><div class="l">Total Aktivitas</div></div></div></div>
+    <div class="card"><div class="result-head"><h2>Aktivitas Terbaru</h2><span class="count">5 terakhir</span></div><div id="dashRecent"></div></div>
+    <div class="card"><h2>Aktivitas Terbanyak Bulan Ini</h2><div id="topActivities"></div></div>
+    <div class="card"><div class="quick-grid"><button id="dashInputBtn" class="btn btn-primary">🎙️ Input Sekarang</button><button id="dashRecapBtn" class="btn btn-secondary">📊 Lihat Rekap</button></div></div>
   </section>
-  <div id="installBox" class="install">📱 Aplikasi dapat dipasang ke layar utama. Gunakan menu browser <b>Tambahkan ke layar utama</b>.</div>
 
-  <section id="panelInput" class="panel active">
+  <section id="panelInput" class="panel">
     <div class="card">
-      <div class="field">
-        <label for="dateInput">Tanggal</label>
-        <input id="dateInput" type="date">
-      </div>
-
-      <div class="field activity-wrap">
-        <label for="activitySelect">Jenis Aktivitas</label>
-        <select id="activitySelect" class="search" style="appearance:auto">
-          <option value="">-- Pilih jenis aktivitas --</option>
-        </select>
-        <div style="margin-top:8px">
-          <input id="activitySearch" class="search" autocomplete="off" placeholder="🔍 Ketik untuk mencari aktivitas..." />
-          <div id="activityList" class="activity-list"></div>
-        </div>
-        <div id="selectedActivity" class="selected-box" style="margin-top:8px">Belum memilih jenis aktivitas.</div>
-      </div>
-
-      <button id="voiceBtn" class="btn btn-primary btn-voice">🎙️ <span>Mulai Input Suara</span></button>
+      <div id="draftBanner" class="draft-banner">📝 Ada draft yang tersimpan untuk tanggal ini.</div>
+      <div class="grid2"><div class="field"><label for="dateInput">Tanggal</label><input id="dateInput" type="date"></div><div class="field"><label for="sessionNote">Catatan sesi <span class="small-note">(opsional)</span></label><input id="sessionNote" type="text" maxlength="100" placeholder="Contoh: pekerjaan kantor pagi"></div></div>
+      <div class="field activity-wrap"><label for="activitySelect">Jenis Aktivitas</label><select id="activitySelect"><option value="">-- Pilih jenis aktivitas --</option></select><div style="margin-top:8px"><input id="activitySearch" type="search" autocomplete="off" placeholder="🔍 Cari dari 117 aktivitas..."><div id="activityList" class="activity-list"></div></div><div id="selectedActivity" class="selected-box" style="margin-top:8px">Belum memilih jenis aktivitas.</div></div>
+      <div class="mode-row"><div><b style="font-size:12px">Mode input berulang</b><div class="small-note">Setelah satu kalimat selesai, mikrofon siap mendengar lagi.</div></div><label class="switch"><input id="continuousMode" type="checkbox"><span class="slider"></span></label></div>
+      <button id="voiceBtn" class="btn btn-primary voice-btn">🎙️ <span>Mulai Input Suara</span></button>
       <div id="status" class="status">Siap menerima suara.</div>
-
-      <div class="note" style="margin-top:12px">
-        Tip: pilih jenis aktivitas terlebih dahulu, lalu tekan mikrofon dan ucapkan kalimat aktivitas. Hasil dapat diedit sebelum disalin.
-      </div>
+      <div class="note">Pilih aktivitas terlebih dahulu. Anda dapat mengubah jenis aktivitas tiap hasil sebelum disimpan.</div>
     </div>
-
-    <div class="card">
-      <div class="result-head">
-        <h2>Hasil Aktivitas</h2>
-        <span id="resultCount" class="count">0 hasil</span>
-      </div>
-      <div id="results"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-        <button id="copyAllBtn" class="btn btn-secondary">📋 Salin Semua</button>
-        <button id="saveSessionBtn" class="btn btn-primary">💾 Simpan Aktivitas</button>
-        <button id="clearBtn" class="btn btn-secondary">🧹 Bersihkan</button>
-        <button id="exportCsvBtn" class="btn btn-secondary">📥 Export CSV</button>
-      </div>
-    </div>
-  </section>
-
-
-  <section id="panelRecap" class="panel">
-    <div class="card">
-      <div class="result-head"><h2>Rekap Aktivitas</h2><span id="recapCount" class="count"></span></div>
-      <div class="recap-row">
-        <div class="field"><label for="recapFrom">Dari</label><input id="recapFrom" type="date"></div>
-        <div class="field"><label for="recapTo">Sampai</label><input id="recapTo" type="date"></div>
-      </div>
-      <div class="recap-row">
-        <button id="recapFilterBtn" class="btn btn-primary">🔎 Tampilkan Rekap</button>
-        <button id="exportXlsxBtn" class="btn btn-secondary">📊 Export Excel</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>No</th><th>Jenis Aktivitas</th><th>Jumlah</th><th>Contoh/Uraian Terakhir</th></tr></thead>
-          <tbody id="recapBody"></tbody>
-        </table>
-      </div>
-    </div>
+    <div class="card"><div class="result-head"><h2>Hasil Aktivitas</h2><span id="resultCount" class="count">0 hasil</span></div><div id="results"></div><div class="grid2" style="margin-top:10px"><button id="copyAllBtn" class="btn btn-secondary">📋 Salin Semua</button><button id="saveSessionBtn" class="btn btn-primary">💾 Simpan Aktivitas</button><button id="clearBtn" class="btn btn-secondary">🧹 Bersihkan</button><button id="exportDraftBtn" class="btn btn-secondary">📄 Simpan Draft CSV</button></div></div>
   </section>
 
   <section id="panelHistory" class="panel">
-    <div class="card">
-      <div class="result-head"><h2>Riwayat Aktivitas</h2><span id="historyCount" class="count"></span></div>
-      <div class="field">
-        <label for="historyDateFilter">Filter Tanggal</label>
-        <input id="historyDateFilter" type="date">
-      </div>
-      <div id="history"></div>
-      <button id="exportHistoryBtn" class="btn btn-secondary" style="width:100%;margin-top:10px">📥 Export Semua Riwayat</button>
-    </div>
+    <div class="card"><div class="result-head"><h2>Riwayat Aktivitas</h2><span id="historyCount" class="count"></span></div><div class="search-row"><input id="historySearch" type="search" placeholder="🔍 Cari uraian / jenis aktivitas..."><button id="clearHistorySearch" class="btn btn-secondary">Reset</button></div><div class="sort-row" style="margin-top:9px"><select id="historySort"><option value="new">Terbaru</option><option value="old">Terlama</option><option value="activity">Jenis aktivitas</option></select><input id="historyDateFilter" type="date"></div><div id="history" style="margin-top:8px"></div><button id="exportHistoryBtn" class="btn btn-secondary" style="width:100%;margin-top:10px">📥 Export Semua Riwayat CSV</button></div>
   </section>
 
+  <section id="panelRecap" class="panel">
+    <div class="card"><div class="result-head"><h2>Rekap Aktivitas</h2><span id="recapCount" class="count"></span></div><div class="grid2"><div class="field"><label for="recapFrom">Dari</label><input id="recapFrom" type="date"></div><div class="field"><label for="recapTo">Sampai</label><input id="recapTo" type="date"></div></div><div class="grid2"><button id="recapFilterBtn" class="btn btn-primary">🔎 Tampilkan</button><button id="exportXlsxBtn" class="btn btn-secondary">📊 Export Excel</button></div></div>
+    <div class="card"><div class="table-wrap"><table class="data-table"><thead><tr><th>No</th><th>Jenis Aktivitas</th><th>Jumlah</th><th>Uraian Terakhir</th></tr></thead><tbody id="recapBody"></tbody></table></div></div>
+  </section>
+
+  <section id="panelBackup" class="panel">
+    <div class="card"><h2>Backup & Pemulihan Data</h2><div class="backup-box"><b>💾 Backup data akun</b><p class="note">Simpan salinan seluruh riwayat akun ini sebagai file JSON. Berguna jika berganti perangkat atau sebelum membersihkan data browser.</p><button id="backupBtn" class="btn btn-primary" style="width:100%">⬇️ Download Backup JSON</button></div><div class="backup-box" style="margin-top:10px"><b>↩️ Pulihkan data</b><p class="note">Pilih file backup JSON AKTIVITAS Voice yang sebelumnya dibuat dari akun ini. Data akan digabung dengan data yang ada.</p><input id="restoreFile" type="file" accept="application/json,.json" style="width:100%;margin:8px 0"><button id="restoreBtn" class="btn btn-secondary" style="width:100%">↩️ Pulihkan Backup</button></div></div>
+    <div class="card"><h2>Informasi Penyimpanan</h2><div id="storageInfo" class="note"></div></div>
+  </section>
 
   <section id="panelAccount" class="panel">
-    <div class="card">
-      <h2 style="margin-top:0">Akun Pengguna</h2>
-      <div id="accountInfo" class="note"></div>
-      <button id="accountLogoutBtn" class="btn btn-primary" style="margin-top:12px">🚪 Keluar</button>
-    </div>
-  </section>
-
-  <section id="panelInfo" class="panel">
-    <div class="card">
-      <h2 style="margin-top:0">Tentang SITAMPAN Voice</h2>
-      <p style="line-height:1.55">Aplikasi ringan untuk membantu mengubah ucapan menjadi tulisan aktivitas harian. Master pilihan aktivitas berisi 117 jenis aktivitas dari daftar SITAMPAN yang digunakan sebagai dasar aplikasi.</p>
-      <p class="note">Data aktivitas disimpan di perangkat menggunakan localStorage dan dipisahkan berdasarkan akun pengguna yang login. Aplikasi ini tidak memerlukan server atau database online untuk penyimpanan. Dukungan pengenalan suara mengikuti kemampuan browser/perangkat.</p>
-      <button id="installBtn" class="btn btn-primary" style="margin-top:8px">📱 Pasang sebagai Aplikasi</button>
-    </div>
+    <div class="card"><h2>Akun Pengguna</h2><div id="accountInfo" class="note"></div><div class="grid2" style="margin-top:12px"><button id="installBtn" class="btn btn-secondary">📱 Pasang Aplikasi</button><button id="accountLogoutBtn" class="btn btn-primary">🚪 Keluar</button></div></div>
+    <div class="card"><h2>Tentang V6</h2><p class="note">V6 menambahkan input suara berulang, pengubahan jenis aktivitas per hasil, pencarian riwayat, statistik aktivitas, backup/pemulihan JSON, draft otomatis, serta export Excel dan CSV.</p><p class="note">Master aktivitas tetap menggunakan 117 jenis aktivitas yang menjadi dasar aplikasi.</p></div>
   </section>
 </main>
-
-<nav class="nav">
-  <div class="nav-inner">
-    <button class="active" data-panel="panelDashboard"><span class="nav-icon">🏠</span>Dashboard</button>
-    <button data-panel="panelInput"><span class="nav-icon">🎙️</span>Input</button>
-    <button data-panel="panelHistory"><span class="nav-icon">📋</span>Riwayat</button>
-    <button data-panel="panelRecap"><span class="nav-icon">📊</span>Rekap</button>
-    <button data-panel="panelAccount"><span class="nav-icon">👤</span>Akun</button>
-  </div>
-</nav>
-<div id="toast" class="toast"></div>
+<nav class="nav"><div class="nav-inner"><button class="active" data-panel="panelDashboard"><span class="nav-icon">🏠</span>Dashboard</button><button data-panel="panelInput"><span class="nav-icon">🎙️</span>Input</button><button data-panel="panelHistory"><span class="nav-icon">📋</span>Riwayat</button><button data-panel="panelRecap"><span class="nav-icon">📊</span>Rekap</button><button data-panel="panelBackup"><span class="nav-icon">💾</span>Data</button></div></nav>
+<div id="toast" class="toast"></div><div class="footer">AKTIVITAS Voice V6 · data lokal pada perangkat</div>
 </div>
 
 <script>
-const ACTIVITIES = [{"no": 1, "name": "Menganalisa"}, {"no": 2, "name": "Menata"}, {"no": 3, "name": "Menelaah"}, {"no": 4, "name": "Menyusun"}, {"no": 5, "name": "Melakukan pemulihan"}, {"no": 6, "name": "Mengawasi"}, {"no": 7, "name": "Mengevakuasi"}, {"no": 8, "name": "Melakukan penyuluhan"}, {"no": 9, "name": "Melakukan penindakan"}, {"no": 10, "name": "Melakukan kegiatan bendahara"}, {"no": 11, "name": "Mengembangkan"}, {"no": 12, "name": "Memasang"}, {"no": 13, "name": "Memperbaiki"}, {"no": 14, "name": "Mengecek"}, {"no": 15, "name": "Menyurvey"}, {"no": 16, "name": "Mengumpulkan data"}, {"no": 17, "name": "Mengklasifikasi"}, {"no": 18, "name": "Mengidentifikasi"}, {"no": 19, "name": "Menyiapkan bahan"}, {"no": 20, "name": "Melakukan koordinasi"}, {"no": 21, "name": "Menyusun bahan rekomendasi"}, {"no": 22, "name": "Mengolah data"}, {"no": 23, "name": "Menghimpun"}, {"no": 24, "name": "Merancang"}, {"no": 25, "name": "Mendampingi"}, {"no": 26, "name": "Mendokumentasi"}, {"no": 27, "name": "Menerima data/ laporan"}, {"no": 28, "name": "Menerima konsultasi/ pengaduan"}, {"no": 29, "name": "Menerima tamu"}, {"no": 30, "name": "Mengikuti rapat internal OPD/ unit kerja"}, {"no": 31, "name": "Menerjemahkan bahasa"}, {"no": 32, "name": "Mencatat"}, {"no": 33, "name": "Mengecek Jadwal"}, {"no": 34, "name": "Menyiapkan alat komunikasi"}, {"no": 35, "name": "Memeriksa kelengkapan"}, {"no": 36, "name": "Mengoperasikan"}, {"no": 37, "name": "Menyajikan konsumsi"}, {"no": 38, "name": "Mengatur kenyamanan ruang"}, {"no": 39, "name": "Memelihara peralatan/ perlengkapan makan"}, {"no": 40, "name": "Memelihara"}, {"no": 41, "name": "Melayani antar/ jemput Pejabat/ Pegawai"}, {"no": 42, "name": "Melayani"}, {"no": 43, "name": "Membersihkan mobil/ kendaraan dinas"}, {"no": 44, "name": "Membersihkan"}, {"no": 45, "name": "Melakukan pengamanan dan penertiban"}, {"no": 46, "name": "Mencatat pungutan retribusi"}, {"no": 47, "name": "Melaporkan pungutan retribusi"}, {"no": 48, "name": "Menyiapkan peralatan kebersihan"}, {"no": 49, "name": "Menjaga kebersihan"}, {"no": 50, "name": "Menyiapkan peralatan kebutuhan kegiatan"}, {"no": 51, "name": "Memberi usul dan saran pada pimpinan"}, {"no": 52, "name": "Mengikuti rapat/ koordinasi/ sosialisasi/ konsultasi/ acara dalam daerah"}, {"no": 53, "name": "Mengonsep Keputusan/ Perjanjian/ MoU"}, {"no": 54, "name": "Mengonsep Peraturan Daerah"}, {"no": 55, "name": "Mengonsep Peraturan Bupati"}, {"no": 56, "name": "Mengonsep surat/ dokumen"}, {"no": 57, "name": "Melakukan penjurian"}, {"no": 58, "name": "Melelang"}, {"no": 59, "name": "Meliput"}, {"no": 60, "name": "Memandu"}, {"no": 61, "name": "Memarkir/ mengatur parkir"}, {"no": 62, "name": "Memasukkan"}, {"no": 63, "name": "Membayarkan"}, {"no": 64, "name": "Membuat catalog"}, {"no": 65, "name": "Membuat kliping"}, {"no": 66, "name": "Membuat laporan"}, {"no": 67, "name": "Membuat notulen"}, {"no": 68, "name": "Membuat rancangan gambar"}, {"no": 69, "name": "Membuat tabulasi"}, {"no": 70, "name": "Membukukan"}, {"no": 71, "name": "Memfotocopy"}, {"no": 72, "name": "Memediasi"}, {"no": 73, "name": "Memeriksa"}, {"no": 74, "name": "Memfasilitasi"}, {"no": 75, "name": "Memindahkan"}, {"no": 76, "name": "Memotret"}, {"no": 77, "name": "Memproses"}, {"no": 78, "name": "Mempublikasikan"}, {"no": 79, "name": "Memungut retribusi"}, {"no": 80, "name": "Memusnahkan"}, {"no": 81, "name": "Memverifikasi"}, {"no": 82, "name": "Menagih"}, {"no": 83, "name": "Menangani"}, {"no": 84, "name": "Menangkap"}, {"no": 85, "name": "Mencetak"}, {"no": 86, "name": "Mencuci"}, {"no": 87, "name": "Mendesain"}, {"no": 88, "name": "Mendiskusikan"}, {"no": 89, "name": "Meneliti"}, {"no": 90, "name": "Menera ulang"}, {"no": 91, "name": "Menertibkan"}, {"no": 92, "name": "Mengagenda"}, {"no": 93, "name": "Mengamankan"}, {"no": 94, "name": "Mengarsipkan"}, {"no": 95, "name": "Mengaudit"}, {"no": 96, "name": "Mengawal"}, {"no": 97, "name": "Mengawasi kegiatan"}, {"no": 98, "name": "Mengelola data"}, {"no": 99, "name": "Mengelompokkan/ menggolongkan"}, {"no": 100, "name": "Mengetik"}, {"no": 101, "name": "Menggeledah"}, {"no": 102, "name": "Menghubungi"}, {"no": 103, "name": "Mengurus surat-surat"}, {"no": 104, "name": "Mengirimkan surat"}, {"no": 105, "name": "Mengontrol"}, {"no": 106, "name": "Menguji"}, {"no": 107, "name": "Mengukur"}, {"no": 108, "name": "Menyapu"}, {"no": 109, "name": "Menyebarluaskan"}, {"no": 110, "name": "Menyetorkan"}, {"no": 111, "name": "Menyeting"}, {"no": 112, "name": "Menyidik"}, {"no": 113, "name": "Melaporkan hasil pekerjaan"}, {"no": 114, "name": "Mengikuti upacara"}, {"no": 115, "name": "Mengikuti penerimaan kunjungan kerja"}, {"no": 116, "name": "Melaksanakan tugas lain"}, {"no": 117, "name": "Mengikuti Apel."}];
+const ACTIVITIES = [{"no":1,"name":"Menganalisa"},{"no":2,"name":"Menata"},{"no":3,"name":"Menelaah"},{"no":4,"name":"Menyusun"},{"no":5,"name":"Melakukan pemulihan"},{"no":6,"name":"Mengawasi"},{"no":7,"name":"Mengevakuasi"},{"no":8,"name":"Melakukan penyuluhan"},{"no":9,"name":"Melakukan penindakan"},{"no":10,"name":"Melakukan kegiatan bendahara"},{"no":11,"name":"Mengembangkan"},{"no":12,"name":"Memasang"},{"no":13,"name":"Memperbaiki"},{"no":14,"name":"Mengecek"},{"no":15,"name":"Menyurvey"},{"no":16,"name":"Mengumpulkan data"},{"no":17,"name":"Mengklasifikasi"},{"no":18,"name":"Mengidentifikasi"},{"no":19,"name":"Menyiapkan bahan"},{"no":20,"name":"Melakukan koordinasi"},{"no":21,"name":"Menyusun bahan rekomendasi"},{"no":22,"name":"Mengolah data"},{"no":23,"name":"Menghimpun"},{"no":24,"name":"Merancang"},{"no":25,"name":"Mendampingi"},{"no":26,"name":"Mendokumentasi"},{"no":27,"name":"Menerima data/ laporan"},{"no":28,"name":"Menerima konsultasi/ pengaduan"},{"no":29,"name":"Menerima tamu"},{"no":30,"name":"Mengikuti rapat internal OPD/ unit kerja"},{"no":31,"name":"Menerjemahkan bahasa"},{"no":32,"name":"Mencatat"},{"no":33,"name":"Mengecek Jadwal"},{"no":34,"name":"Menyiapkan alat komunikasi"},{"no":35,"name":"Memeriksa kelengkapan"},{"no":36,"name":"Mengoperasikan"},{"no":37,"name":"Menyajikan konsumsi"},{"no":38,"name":"Mengatur kenyamanan ruang"},{"no":39,"name":"Memelihara peralatan/ perlengkapan makan"},{"no":40,"name":"Memelihara"},{"no":41,"name":"Melayani antar/ jemput Pejabat/ Pegawai"},{"no":42,"name":"Melayani"},{"no":43,"name":"Membersihkan mobil/ kendaraan dinas"},{"no":44,"name":"Membersihkan"},{"no":45,"name":"Melakukan pengamanan dan penertiban"},{"no":46,"name":"Mencatat pungutan retribusi"},{"no":47,"name":"Melaporkan pungutan retribusi"},{"no":48,"name":"Menyiapkan peralatan kebersihan"},{"no":49,"name":"Menjaga kebersihan"},{"no":50,"name":"Menyiapkan peralatan kebutuhan kegiatan"},{"no":51,"name":"Memberi usul dan saran pada pimpinan"},{"no":52,"name":"Mengikuti rapat/ koordinasi/ sosialisasi/ konsultasi/ acara dalam daerah"},{"no":53,"name":"Mengonsep Keputusan/ Perjanjian/ MoU"},{"no":54,"name":"Mengonsep Peraturan Daerah"},{"no":55,"name":"Mengonsep Peraturan Bupati"},{"no":56,"name":"Mengonsep surat/ dokumen"},{"no":57,"name":"Melakukan penjurian"},{"no":58,"name":"Melelang"},{"no":59,"name":"Meliput"},{"no":60,"name":"Memandu"},{"no":61,"name":"Memarkir/ mengatur parkir"},{"no":62,"name":"Memasukkan"},{"no":63,"name":"Membayarkan"},{"no":64,"name":"Membuat catalog"},{"no":65,"name":"Membuat kliping"},{"no":66,"name":"Membuat laporan"},{"no":67,"name":"Membuat notulen"},{"no":68,"name":"Membuat rancangan gambar"},{"no":69,"name":"Membuat tabulasi"},{"no":70,"name":"Membukukan"},{"no":71,"name":"Memfotocopy"},{"no":72,"name":"Memediasi"},{"no":73,"name":"Memeriksa"},{"no":74,"name":"Memfasilitasi"},{"no":75,"name":"Memindahkan"},{"no":76,"name":"Memotret"},{"no":77,"name":"Memproses"},{"no":78,"name":"Mempublikasikan"},{"no":79,"name":"Memungut retribusi"},{"no":80,"name":"Memusnahkan"},{"no":81,"name":"Memverifikasi"},{"no":82,"name":"Menagih"},{"no":83,"name":"Menangani"},{"no":84,"name":"Menangkap"},{"no":85,"name":"Mencetak"},{"no":86,"name":"Mencuci"},{"no":87,"name":"Mendesain"},{"no":88,"name":"Mendiskusikan"},{"no":89,"name":"Meneliti"},{"no":90,"name":"Menera ulang"},{"no":91,"name":"Menertibkan"},{"no":92,"name":"Mengagenda"},{"no":93,"name":"Mengamankan"},{"no":94,"name":"Mengarsipkan"},{"no":95,"name":"Mengaudit"},{"no":96,"name":"Mengawal"},{"no":97,"name":"Mengawasi kegiatan"},{"no":98,"name":"Mengelola data"},{"no":99,"name":"Mengelompokkan/ menggolongkan"},{"no":100,"name":"Mengetik"},{"no":101,"name":"Menggeledah"},{"no":102,"name":"Menghubungi"},{"no":103,"name":"Mengurus surat-surat"},{"no":104,"name":"Mengirimkan surat"},{"no":105,"name":"Mengontrol"},{"no":106,"name":"Menguji"},{"no":107,"name":"Mengukur"},{"no":108,"name":"Menyapu"},{"no":109,"name":"Menyebarluaskan"},{"no":110,"name":"Menyetorkan"},{"no":111,"name":"Menyeting"},{"no":112,"name":"Menyidik"},{"no":113,"name":"Melaporkan hasil pekerjaan"},{"no":114,"name":"Mengikuti upacara"},{"no":115,"name":"Mengikuti penerimaan kunjungan kerja"},{"no":116,"name":"Melaksanakan tugas lain"},{"no":117,"name":"Mengikuti Apel."}];
 const $ = id => document.getElementById(id);
-const STORAGE_KEY = 'sitampanVoiceRecordsV1';
-const USERS_KEY = 'sitampanUsersV2';
-const SESSION_KEY = 'sitampanSessionV2';
-const DATA_PREFIX = 'sitampanDataV2_';
-let currentUser = null;
-const dateInput = $('dateInput');
-const activitySelect = $('activitySelect');
-const activitySearch = $('activitySearch');
-const activityList = $('activityList');
-const selectedActivity = $('selectedActivity');
-const voiceBtn = $('voiceBtn');
-const statusEl = $('status');
-const resultsEl = $('results');
-const resultCount = $('resultCount');
-let selectedActivityObj = null;
-let results = [];
-let recognition = null;
-let isRecording = false;
-let deferredPrompt = null;
+const USERS_KEY='AKTIVITASUsersV2', SESSION_KEY='AKTIVITASSessionV2', DATA_PREFIX_V6='AKTIVITASDataV3_', DATA_PREFIX_V5='AKTIVITASDataV2_';
+let currentUser=null, selectedActivityObj=null, results=[], recognition=null, isRecording=false, deferredPrompt=null, restartTimer=null;
+const dateInput=$('dateInput');
 
+dateInput.value=new Date().toISOString().slice(0,10);
+$('activitySelect').insertAdjacentHTML('beforeend',ACTIVITIES.map(a=>`<option value="${a.no}">#${a.no} — ${esc(a.name)}</option>`).join(''));
 
-function normalizedUsername(v){ return String(v||'').trim().toLowerCase().replace(/\s+/g,''); }
-function userDataKey(username){ return DATA_PREFIX + encodeURIComponent(normalizedUsername(username)); }
-function getUsers(){
-  try{return JSON.parse(localStorage.getItem(USERS_KEY)||'[]');}catch(e){return [];}
-}
-function setUsers(users){localStorage.setItem(USERS_KEY,JSON.stringify(users));}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function normalizedUsername(v){return String(v||'').trim().toLowerCase().replace(/\s+/g,'');}
+function userKey(prefix,username){return prefix+encodeURIComponent(normalizedUsername(username));}
+function getUsers(){try{return JSON.parse(localStorage.getItem(USERS_KEY)||'[]')}catch(e){return[]}}
+function setUsers(v){localStorage.setItem(USERS_KEY,JSON.stringify(v))}
 function getUserData(){
-  if(!currentUser) return {history:[],draft:null};
-  try{return JSON.parse(localStorage.getItem(userDataKey(currentUser.username))||'{"history":[],"draft":null}');}
-  catch(e){return {history:[],draft:null};}
-}
-function setUserData(data){
-  if(currentUser) localStorage.setItem(userDataKey(currentUser.username),JSON.stringify(data));
-}
-function getHistory(){
-  return getUserData().history||[];
-}
-function setHistory(all){
-  const d=getUserData(); d.history=all; setUserData(d);
-}
-async function hashPassword(value){
-  if(window.crypto?.subtle){
-    const bytes=new TextEncoder().encode(value);
-    const digest=await crypto.subtle.digest('SHA-256',bytes);
-    return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  }
-  // Fallback only for local prototype environments without Web Crypto.
-  let h=2166136261; for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619);}
-  return 'fallback-'+(h>>>0).toString(16);
-}
-function showAuthError(msg){
-  const el=$('authError'); el.textContent=msg; el.style.display='block';
-}
-function clearAuthError(){ $('authError').style.display='none'; }
-function switchAuth(mode){
-  clearAuthError();
-  const login=mode==='login';
-  $('loginForm').style.display=login?'block':'none';
-  $('registerForm').style.display=login?'none':'block';
-  $('tabLogin').classList.toggle('active',login);
-  $('tabRegister').classList.toggle('active',!login);
-}
-function showApp(){
-  $('authScreen').style.display='none';
-  $('appShell').style.display='block';
-  $('currentUserName').textContent=currentUser.name||currentUser.username;
-  $('accountInfo').innerHTML=`<b>Nama:</b> ${esc(currentUser.name)}<br><b>Username:</b> ${esc(currentUser.username)}<br><br><span class="note">Data aktivitas tersimpan pada perangkat ini khusus untuk akun <b>${esc(currentUser.username)}</b>.</span>`;
-  loadDraft();
-  renderResults();
-  loadHistory();
-  updateDashboard();
-  renderRecap();
-}
-function hideApp(){
-  $('appShell').style.display='none';
-  $('authScreen').style.display='flex';
-  currentUser=null;
-  results=[]; selectedActivityObj=null;
-}
-function saveSession(){localStorage.setItem(SESSION_KEY,JSON.stringify({username:currentUser.username}));}
-function logout(){
-  localStorage.removeItem(SESSION_KEY);
-  if(isRecording && recognition){try{recognition.stop();}catch(e){}}
-  hideApp(); switchAuth('login'); $('loginPassword').value='';
-}
-
-dateInput.value = new Date().toISOString().slice(0,10);
-activitySelect.innerHTML += ACTIVITIES.map(a=>`<option value="${a.no}">#${a.no} — ${esc(a.name)}</option>`).join('');
-
-function esc(s){
-  return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-}
-function formatDate(d){
-  if(!d) return '-';
-  const x = new Date(d+'T00:00:00');
-  return x.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'});
-}
-function toast(msg){
-  const t=$('toast'); t.textContent=msg; t.style.display='block';
-  clearTimeout(window.__toast); window.__toast=setTimeout(()=>t.style.display='none',1800);
-}
-function renderActivityList(filter=''){
-  const q=filter.trim().toLowerCase();
-  const matches=ACTIVITIES.filter(a=>a.name.toLowerCase().includes(q)).slice(0,60);
-  activityList.innerHTML = matches.length ? matches.map(a=>`
-    <div class="activity-item" data-no="${a.no}">
-      <span class="activity-no">#${a.no}</span>${esc(a.name)}
-    </div>`).join('') :
-    '<div class="empty">Aktivitas tidak ditemukan.</div>';
-  activityList.style.display='block';
-}
-function selectActivity(no){
-  selectedActivityObj=ACTIVITIES.find(a=>a.no===Number(no)) || null;
-  selectedActivity.textContent=selectedActivityObj ? `✓ #${selectedActivityObj.no} — ${selectedActivityObj.name}` : 'Belum memilih jenis aktivitas.';
-  activitySearch.value=selectedActivityObj ? selectedActivityObj.name : '';
-  if(activitySelect) activitySelect.value=selectedActivityObj ? String(selectedActivityObj.no) : '';
-  activityList.style.display='none';
-}
-activitySelect.addEventListener('change', e=>{
-  if(e.target.value) selectActivity(e.target.value);
-});
-activitySearch.addEventListener('focus',()=>renderActivityList(activitySearch.value));
-activitySearch.addEventListener('input',()=>renderActivityList(activitySearch.value));
-activityList.addEventListener('click',e=>{
-  const item=e.target.closest('.activity-item'); if(item) selectActivity(item.dataset.no);
-});
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.activity-wrap')) activityList.style.display='none';
-});
-
-function renderResults(){
-  resultCount.textContent=`${results.length} hasil`;
-  if(!results.length){
-    resultsEl.innerHTML='<div class="empty">Belum ada hasil. Pilih aktivitas lalu gunakan tombol mikrofon.</div>';
-    return;
-  }
-  resultsEl.innerHTML=results.map((r,i)=>`
-    <div class="result" data-id="${r.id}">
-      <div class="result-top">
-        <div class="result-no">#${i+1} · ${esc(r.activity)}</div>
-        <button class="small danger delete-one" title="Hapus">🗑️</button>
-      </div>
-      <textarea class="text-edit result-text" rows="3">${esc(r.text)}</textarea>
-      <div class="actions">
-        <button class="small copy copy-one">📋 Salin</button>
-        <button class="small save-one">💾 Simpan Perubahan</button>
-      </div>
-    </div>`).join('');
-}
-resultsEl.addEventListener('click', async e=>{
-  const box=e.target.closest('.result'); if(!box) return;
-  const id=box.dataset.id;
-  const r=results.find(x=>x.id===id);
-  if(e.target.closest('.copy-one')){
-    const txt=box.querySelector('textarea').value.trim();
-    await copyText(txt); toast('✓ Tulisan berhasil disalin');
-  }
-  if(e.target.closest('.save-one')){
-    const txt=box.querySelector('textarea').value.trim();
-    if(r){r.text=txt; saveDraft(); renderResults(); toast('✓ Perubahan disimpan');}
-  }
-  if(e.target.closest('.delete-one')){
-    results=results.filter(x=>x.id!==id); renderResults(); toast('Hasil dihapus');
-  }
-});
-async function copyText(txt){
+  if(!currentUser)return{history:[],draft:null};
+  const key=userKey(DATA_PREFIX_V6,currentUser.username);
   try{
-    await navigator.clipboard.writeText(txt);
-  }catch(err){
-    const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy'); ta.remove();
-  }
+    const raw=localStorage.getItem(key);
+    if(raw){const d=JSON.parse(raw);return{history:Array.isArray(d.history)?d.history:[],draft:d.draft||null}}
+    const old=localStorage.getItem(userKey(DATA_PREFIX_V5,currentUser.username));
+    if(old){const d=JSON.parse(old);const migrated={history:Array.isArray(d.history)?d.history:[],draft:d.draft||null};localStorage.setItem(key,JSON.stringify(migrated));return migrated}
+  }catch(e){}
+  return{history:[],draft:null};
 }
-$('copyAllBtn').addEventListener('click',async()=>{
-  if(!results.length) return toast('Belum ada hasil');
-  const txt=results.map((r,i)=>`${i+1}. ${r.text}`).join('\n');
-  await copyText(txt); toast('✓ Semua hasil berhasil disalin');
-});
-$('clearBtn').addEventListener('click',()=>{
-  if(!results.length) return;
-  if(confirm('Hapus semua hasil pada input ini?')){results=[];if(currentUser){ const d=getUserData(); d.draft=null; setUserData(d); }renderResults();}
-});
+function setUserData(d){if(currentUser)localStorage.setItem(userKey(DATA_PREFIX_V6,currentUser.username),JSON.stringify(d))}
+function getHistory(){return getUserData().history||[]}
+function setHistory(h){const d=getUserData();d.history=h;setUserData(d)}
+async function hashPassword(value){if(window.crypto?.subtle){const bytes=new TextEncoder().encode(value);const digest=await crypto.subtle.digest('SHA-256',bytes);return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('')}let h=2166136261;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619)}return'fallback-'+(h>>>0).toString(16)}
+function showAuthError(msg){const e=$('authError');e.textContent=msg;e.style.display='block'}
+function clearAuthError(){$('authError').style.display='none'}
+function switchAuth(mode){clearAuthError();const login=mode==='login';$('loginForm').style.display=login?'block':'none';$('registerForm').style.display=login?'none':'block';$('tabLogin').classList.toggle('active',login);$('tabRegister').classList.toggle('active',!login)}
+function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.style.display='none',1900)}
+function formatDate(d){if(!d)return'-';return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}
+function uid(){return crypto?.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function today(){return new Date().toISOString().slice(0,10)}
+function saveSession(){localStorage.setItem(SESSION_KEY,JSON.stringify({username:currentUser.username}))}
+function showApp(){
+  $('authScreen').style.display='none';$('appShell').style.display='block';$('currentUserName').textContent=currentUser.name||currentUser.username;
+  $('accountInfo').innerHTML=`<b>Nama:</b> ${esc(currentUser.name)}<br><b>Username:</b> ${esc(currentUser.username)}<br><br>Data aktivitas tersimpan lokal dan dipisahkan untuk akun ini.`;
+  loadDraft();renderHistory();renderRecap();updateDashboard();updateStorageInfo();
+}
+function hideApp(){if(isRecording)stopVoice();$('appShell').style.display='none';$('authScreen').style.display='flex';currentUser=null;results=[];selectedActivityObj=null}
+function logout(){localStorage.removeItem(SESSION_KEY);hideApp();switchAuth('login');$('loginPassword').value=''}
 
-function saveDraft(){
-  if(!currentUser) return;
-  const d=getUserData(); d.draft={date:dateInput.value,activity:selectedActivityObj,results}; setUserData(d);
+function renderActivityList(filter=''){
+  const q=filter.trim().toLowerCase();const matches=ACTIVITIES.filter(a=>!q||a.name.toLowerCase().includes(q)).slice(0,80);
+  $('activityList').innerHTML=matches.length?matches.map(a=>`<div class="activity-item" data-no="${a.no}"><span class="activity-no">#${a.no}</span>${esc(a.name)}</div>`).join(''):'<div class="empty">Aktivitas tidak ditemukan.</div>';
+  $('activityList').style.display='block';
 }
-function loadDraft(){
-  if(!currentUser) return;
-  const d=getUserData(), x=d.draft;
-  results=[]; selectedActivityObj=null; activitySearch.value=''; activitySelect.value='';
-  selectedActivity.textContent='Belum memilih jenis aktivitas.';
-  if(x && x.date===dateInput.value){
-    selectedActivityObj=x.activity||null; results=x.results||[];
-    selectedActivity.textContent=selectedActivityObj ? `✓ #${selectedActivityObj.no} — ${selectedActivityObj.name}` : 'Belum memilih jenis aktivitas.';
-    activitySearch.value=selectedActivityObj?.name||'';
-    activitySelect.value=selectedActivityObj ? String(selectedActivityObj.no) : '';
-  }
-  renderResults();
+function selectActivity(no){selectedActivityObj=ACTIVITIES.find(a=>a.no===Number(no))||null;$('activitySelect').value=selectedActivityObj?String(selectedActivityObj.no):'';$('activitySearch').value=selectedActivityObj?.name||'';$('selectedActivity').textContent=selectedActivityObj?`✓ #${selectedActivityObj.no} — ${selectedActivityObj.name}`:'Belum memilih jenis aktivitas.';$('activityList').style.display='none';saveDraft()}
+$('activitySelect').addEventListener('change',e=>selectActivity(e.target.value));
+$('activitySearch').addEventListener('focus',()=>renderActivityList($('activitySearch').value));
+$('activitySearch').addEventListener('input',()=>renderActivityList($('activitySearch').value));
+$('activityList').addEventListener('click',e=>{const item=e.target.closest('.activity-item');if(item)selectActivity(item.dataset.no)});
+document.addEventListener('click',e=>{if(!e.target.closest('.activity-wrap'))$('activityList').style.display='none'});
+
+function saveDraft(){if(!currentUser)return;const d=getUserData();d.draft={date:dateInput.value,note:$('sessionNote').value,activity:selectedActivityObj,results};setUserData(d);$('draftBanner').style.display=results.length?'block':'none'}
+function loadDraft(){const d=getUserData(),x=d.draft;results=[];selectedActivityObj=null;$('sessionNote').value='';$('activitySelect').value='';$('activitySearch').value='';$('selectedActivity').textContent='Belum memilih jenis aktivitas.';if(x&&x.date===dateInput.value){results=Array.isArray(x.results)?x.results:[];selectedActivityObj=x.activity||null;$('sessionNote').value=x.note||'';$('activitySelect').value=selectedActivityObj?.no?String(selectedActivityObj.no):'';$('activitySearch').value=selectedActivityObj?.name||'';$('selectedActivity').textContent=selectedActivityObj?`✓ #${selectedActivityObj.no} — ${selectedActivityObj.name}`:'Belum memilih jenis aktivitas.'}$('draftBanner').style.display=results.length?'block':'none';renderResults()}
+function normalizeText(s){let t=String(s||'').trim().replace(/\s+/g,' ');if(!t)return'';t=t.charAt(0).toUpperCase()+t.slice(1);if(!/[.!?]$/.test(t))t+='.';return t}
+function renderResults(){
+  $('resultCount').textContent=`${results.length} hasil`;
+  if(!results.length){$('results').innerHTML='<div class="empty">Belum ada hasil. Pilih aktivitas lalu gunakan mikrofon.</div>';return}
+  $('results').innerHTML=results.map((r,i)=>`<div class="result" data-id="${esc(r.id)}"><div class="result-top"><div class="result-no">#${i+1} · ${esc(r.activity||'Tanpa jenis aktivitas')}</div><button class="small-btn danger delete-one">🗑️ Hapus</button></div><select class="result-activity" style="width:100%;margin-top:8px"><option value="">Tanpa jenis aktivitas</option>${ACTIVITIES.map(a=>`<option value="${a.no}" ${Number(r.activityNo)===a.no?'selected':''}>#${a.no} — ${esc(a.name)}</option>`).join('')}</select><textarea class="text-edit result-text" rows="3">${esc(r.text)}</textarea><div class="result-actions"><button class="small-btn copy-one">📋 Salin</button><button class="small-btn save-one">💾 Simpan</button></div></div>`).join('')
 }
-dateInput.addEventListener('change',()=>{
-  results=[]; selectedActivityObj=null; activitySearch.value=''; activitySelect.value='';
-  selectedActivity.textContent='Belum memilih jenis aktivitas.'; renderResults();
-});
+$('results').addEventListener('input',e=>{const box=e.target.closest('.result');if(!box)return;const r=results.find(x=>x.id===box.dataset.id);if(!r)return;if(e.target.classList.contains('result-text'))r.text=e.target.value;if(e.target.classList.contains('result-activity')){const a=ACTIVITIES.find(x=>x.no===Number(e.target.value));r.activity=a?.name||'Tanpa jenis aktivitas';r.activityNo=a?.no||null}saveDraft()});
+$('results').addEventListener('change',e=>{const box=e.target.closest('.result');if(!box)return;const r=results.find(x=>x.id===box.dataset.id);if(!r)return;if(e.target.classList.contains('result-activity')){const a=ACTIVITIES.find(x=>x.no===Number(e.target.value));r.activity=a?.name||'Tanpa jenis aktivitas';r.activityNo=a?.no||null;renderResults();saveDraft()}});
+$('results').addEventListener('click',async e=>{const box=e.target.closest('.result');if(!box)return;const r=results.find(x=>x.id===box.dataset.id);if(!r)return;if(e.target.closest('.copy-one')){await copyText(box.querySelector('.result-text').value.trim());toast('✓ Tulisan disalin')}if(e.target.closest('.save-one')){r.text=normalizeText(box.querySelector('.result-text').value);renderResults();saveDraft();toast('✓ Perubahan disimpan')}if(e.target.closest('.delete-one')){results=results.filter(x=>x.id!==r.id);renderResults();saveDraft();toast('Hasil dihapus')}});
+$('sessionNote').addEventListener('input',saveDraft);
+$('dateInput').addEventListener('change',()=>{loadDraft();updateDashboard()});
+async function copyText(txt){try{await navigator.clipboard.writeText(txt)}catch(e){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}}
+$('copyAllBtn').addEventListener('click',async()=>{if(!results.length)return toast('Belum ada hasil');await copyText(results.map((r,i)=>`${i+1}. ${r.text}`).join('\n'));toast('✓ Semua hasil disalin')});
+$('clearBtn').addEventListener('click',()=>{if(!results.length)return;if(confirm('Hapus semua hasil pada input ini?')){results=[];const d=getUserData();d.draft=null;setUserData(d);renderResults();$('draftBanner').style.display='none';toast('Draft dibersihkan')}});
+$('exportDraftBtn').addEventListener('click',()=>{if(!results.length)return toast('Belum ada draft');downloadCsv([{date:dateInput.value,activity:selectedActivityObj?.name||'',activityNo:selectedActivityObj?.no||'',count:results.length,items:results}],`AKTIVITAS_Draft_${dateInput.value}.csv`)})
 
 const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(SpeechRecognition){
-  recognition=new SpeechRecognition();
-  recognition.lang='id-ID';
-  recognition.continuous=false;
-  recognition.interimResults=true;
-  recognition.maxAlternatives=1;
-  recognition.onstart=()=>{
-    isRecording=true; voiceBtn.classList.add('recording');
-    voiceBtn.innerHTML='🔴 <span>Mendengarkan... tekan untuk berhenti</span>';
-    statusEl.textContent='Silakan bicara dengan jelas.';
-  };
-  recognition.onresult=e=>{
-    let interim='', finalText='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const txt=e.results[i][0].transcript;
-      if(e.results[i].isFinal) finalText+=txt;
-      else interim+=txt;
-    }
-    statusEl.textContent=finalText ? `Terdengar: ${finalText}` : (interim ? `Mendengar: ${interim}` : 'Mendengarkan...');
-    if(finalText.trim()){
-      const clean=finalText.trim();
-      results.push({
-        id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
-        date:dateInput.value,
-        activity:selectedActivityObj?.name||'Tanpa jenis aktivitas',
-        activityNo:selectedActivityObj?.no||null,
-        text:clean
-      });
-      saveDraft(); renderResults();
-    }
-  };
-  recognition.onerror=e=>{
-    const msg={'not-allowed':'Izin mikrofon ditolak. Aktifkan izin mikrofon pada browser.',
-      'no-speech':'Tidak terdengar suara. Silakan coba lagi.','network':'Pengenalan suara membutuhkan koneksi internet pada sebagian browser.',
-      'audio-capture':'Mikrofon tidak ditemukan.'}[e.error]||`Voice error: ${e.error}`;
-    statusEl.textContent=msg; stopVoice();
-  };
-  recognition.onend=()=>stopVoice(false);
-}else{
-  statusEl.textContent='Browser ini belum mendukung voice-to-text. Gunakan Chrome/Edge yang mendukung Speech Recognition.';
-}
-function stopVoice(update=true){
-  isRecording=false; voiceBtn.classList.remove('recording');
-  voiceBtn.innerHTML='🎙️ <span>Mulai Input Suara</span>';
-  if(update) statusEl.textContent='Siap menerima suara.';
-}
-voiceBtn.addEventListener('click',()=>{
-  if(!selectedActivityObj) return toast('Pilih jenis aktivitas terlebih dahulu.');
-  if(!recognition) return toast('Voice-to-text tidak didukung browser ini.');
-  if(isRecording){recognition.stop();return;}
-  try{recognition.start();}catch(e){statusEl.textContent='Tidak dapat memulai mikrofon. Coba lagi.';}
-});
+if(SpeechRecognition){recognition=new SpeechRecognition();recognition.lang='id-ID';recognition.continuous=false;recognition.interimResults=true;recognition.maxAlternatives=1;recognition.onstart=()=>{isRecording=true;$('voiceBtn').classList.add('recording');$('voiceBtn').innerHTML='🔴 <span>Mendengarkan... tekan untuk berhenti</span>';$('status').textContent='Silakan bicara dengan jelas.'};recognition.onresult=e=>{let interim='',finalText='';for(let i=e.resultIndex;i<e.results.length;i++){const txt=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=txt;else interim+=txt}$('status').textContent=finalText?`Terdengar: ${finalText}`:(interim?`Mendengar: ${interim}`:'Mendengarkan...');if(finalText.trim()){const clean=normalizeText(finalText);results.push({id:uid(),date:dateInput.value,activity:selectedActivityObj?.name||'Tanpa jenis aktivitas',activityNo:selectedActivityObj?.no||null,text:clean,createdAt:new Date().toISOString()});saveDraft();renderResults()}};recognition.onerror=e=>{const msg={'not-allowed':'Izin mikrofon ditolak. Aktifkan izin mikrofon.','no-speech':'Tidak terdengar suara. Silakan coba lagi.','network':'Pengenalan suara membutuhkan koneksi internet pada sebagian browser.','audio-capture':'Mikrofon tidak ditemukan.'}[e.error]||`Voice error: ${e.error}`;$('status').textContent=msg;stopVoice()};recognition.onend=()=>{isRecording=false;$('voiceBtn').classList.remove('recording');$('voiceBtn').innerHTML='🎙️ <span>Mulai Input Suara</span>';if($('continuousMode').checked&&selectedActivityObj){clearTimeout(restartTimer);restartTimer=setTimeout(()=>{try{recognition.start()}catch(e){}},350)}else $('status').textContent='Siap menerima suara.'}}
+else $('status').textContent='Browser ini belum mendukung voice-to-text. Gunakan Chrome/Edge.';
+function stopVoice(){clearTimeout(restartTimer);if(recognition&&isRecording){try{recognition.stop()}catch(e){}}isRecording=false;$('voiceBtn').classList.remove('recording');$('voiceBtn').innerHTML='🎙️ <span>Mulai Input Suara</span>';$('status').textContent='Siap menerima suara.'}
+$('voiceBtn').addEventListener('click',()=>{if(!selectedActivityObj)return toast('Pilih jenis aktivitas terlebih dahulu.');if(!recognition)return toast('Voice-to-text tidak didukung browser ini.');if(isRecording){stopVoice();return}try{recognition.start()}catch(e){$('status').textContent='Tidak dapat memulai mikrofon. Coba lagi.'}});
 
-function saveCurrentToHistory(){
-  if(!results.length) return toast('Belum ada hasil untuk disimpan.');
-  const all=getHistory();
-  const session={
-    id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
-    date:dateInput.value,
-    activity:selectedActivityObj?.name||'Tanpa jenis aktivitas',
-    activityNo:selectedActivityObj?.no||null,
-    count:results.length,
-    items:results.map(r=>({...r}))
-  };
-  all.push(session);
-  setHistory(all);
-  results=[];
-  renderResults();
-  if(currentUser){ const d=getUserData(); d.draft=null; setUserData(d); }
-  loadHistory();
-  toast('✓ Aktivitas berhasil disimpan');
-}
-function deleteHistory(id){
-  const all=getHistory().filter(x=>x.id!==id);
-  setHistory(all); loadHistory(); toast('✓ Riwayat dihapus');
-}
-function loadHistory(){
-  const all=getHistory();
-  const filter=$('historyDateFilter')?.value||'';
-  const filtered=filter ? all.filter(x=>x.date===filter) : all;
-  $('historyCount').textContent=`${filtered.length} sesi`;
-  if(!filtered.length){
-    $('history').innerHTML='<div class="empty">Belum ada riwayat untuk pilihan ini.</div>';
-    return;
-  }
-  $('history').innerHTML=filtered.slice().reverse().map(x=>`
-    <div class="history-item">
-      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
-        <div>
-          <div class="history-date">${esc(formatDate(x.date))}</div>
-          <div class="history-meta">#${esc(x.activityNo||'-')} · ${esc(x.activity)} · ${x.count} hasil</div>
-        </div>
-        <button class="small danger delete-history" data-id="${esc(x.id)}">🗑️ Hapus</button>
-      </div>
-      <div style="margin-top:8px">
-        ${x.items.map((item,i)=>`<div style="font-size:13px;line-height:1.45;padding:6px 0;border-top:1px solid var(--line)">${i+1}. ${esc(item.text)}</div>`).join('')}
-      </div>
-    </div>`).join('');
-}
+function saveCurrentToHistory(){if(!results.length)return toast('Belum ada hasil untuk disimpan.');const all=getHistory();const now=new Date().toISOString();const groups=new Map();results.forEach(r=>{const key=`${r.activityNo||''}|${r.activity||''}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push({...r,date:dateInput.value,createdAt:r.createdAt||now})});groups.forEach((items,key)=>{const first=items[0];all.push({id:uid(),date:dateInput.value,activity:first.activity,activityNo:first.activityNo||null,count:items.length,note:$('sessionNote').value.trim(),items})});setHistory(all);results=[];const d=getUserData();d.draft=null;setUserData(d);renderResults();$('draftBanner').style.display='none';loadHistory();renderRecap();updateDashboard();updateStorageInfo();toast('✓ Aktivitas berhasil disimpan')}
 $('saveSessionBtn').addEventListener('click',saveCurrentToHistory);
-$('historyDateFilter').addEventListener('change',loadHistory);
-$('history').addEventListener('click',e=>{
-  const b=e.target.closest('.delete-history'); if(!b) return;
-  if(confirm('Hapus sesi riwayat ini?')) deleteHistory(b.dataset.id);
-});
 
-function rowsForCsv(all){
-  const rows=[['No','Tanggal','Jenis Aktivitas','No Aktivitas','Uraian Aktivitas']];
-  let no=1;
-  all.forEach(session=>{
-    session.items.forEach(item=>{
-      rows.push([no++,session.date,session.activity,session.activityNo||'',item.text]);
-    });
-  });
-  return rows;
-}
-function csvEscape(v){
-  const s=String(v??'');
-  return /[",\\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
-}
-function downloadCsv(all, filename){
-  if(!all.length) return toast('Belum ada data untuk diexport.');
-  const csv='\\uFEFF'+rowsForCsv(all).map(row=>row.map(csvEscape).join(',')).join('\\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
-  URL.revokeObjectURL(url);
-  toast('✓ File CSV berhasil dibuat');
-}
-$('exportCsvBtn').addEventListener('click',()=>{
-  const all=getHistory();
-  downloadCsv(all,`SITAMPAN_Aktivitas_${dateInput.value||'data'}.csv`);
-});
-$('exportHistoryBtn').addEventListener('click',()=>{
-  downloadCsv(getHistory(),'SITAMPAN_Riwayat_Aktivitas.csv');
-});
+function flattenHistory(all){const rows=[];let no=1;all.forEach(s=>(s.items||[]).forEach(item=>rows.push({No:no++,Tanggal:s.date,'Jenis Aktivitas':item.activity||s.activity||'','No Aktivitas':item.activityNo??s.activityNo??'','Uraian Aktivitas':item.text||'',Catatan:s.note||''})));return rows}
+function csvEscape(v){const s=String(v??'');return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
+function downloadCsv(all,filename){const rows=flattenHistory(all);if(!rows.length)return toast('Belum ada data untuk diexport.');const header=Object.keys(rows[0]);const csv='\uFEFF'+[header,...rows.map(r=>header.map(k=>r[k]))].map(row=>row.map(csvEscape).join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),500);toast('✓ CSV berhasil dibuat')}
+$('exportHistoryBtn').addEventListener('click',()=>downloadCsv(getHistory(),'AKTIVITAS_Riwayat_Aktivitas.csv'));
 
+function renderHistory(){const all=getHistory();const q=$('historySearch').value.trim().toLowerCase();const date=$('historyDateFilter').value;let flat=[];all.forEach(s=>(s.items||[]).forEach(item=>flat.push({...item,sessionId:s.id,date:s.date,sessionNote:s.note||'',activity:item.activity||s.activity,activityNo:item.activityNo??s.activityNo??''})));flat=flat.filter(x=>(!q||`${x.activity} ${x.text} ${x.sessionNote}`.toLowerCase().includes(q))&&(!date||x.date===date));const sort=$('historySort').value;if(sort==='old')flat.sort((a,b)=>(a.date||'').localeCompare(b.date||''));else if(sort==='activity')flat.sort((a,b)=>(a.activity||'').localeCompare(b.activity||''));else flat.sort((a,b)=>(b.date||'').localeCompare(a.date||''));$('historyCount').textContent=`${flat.length} aktivitas`;if(!flat.length){$('history').innerHTML='<div class="empty">Belum ada data sesuai filter.</div>';return}const bySession=new Map();flat.forEach(x=>{if(!bySession.has(x.sessionId))bySession.set(x.sessionId,[]);bySession.get(x.sessionId).push(x)});$('history').innerHTML=Array.from(bySession.values()).map(items=>{const first=items[0];return`<div class="history-item"><div class="history-title">${esc(formatDate(first.date))} · ${items.length} aktivitas</div><div class="history-meta">${esc(first.sessionNote||'Tanpa catatan sesi')}</div>${items.map((x,i)=>`<div class="history-text"><b>#${esc(x.activityNo||'-')} ${esc(x.activity||'')}</b><br>${esc(x.text)}</div>`).join('')}<div class="history-actions"><button class="small-btn copy-history" data-text="${esc(items.map(x=>x.text).join('\n'))}">📋 Salin</button><button class="small-btn danger delete-session" data-id="${esc(first.sessionId)}">🗑️ Hapus sesi</button></div></div>`}).join('')}
+$('historySearch').addEventListener('input',renderHistory);$('historyDateFilter').addEventListener('change',renderHistory);$('historySort').addEventListener('change',renderHistory);$('clearHistorySearch').addEventListener('click',()=>{$('historySearch').value='';$('historyDateFilter').value='';renderHistory()});
+$('history').addEventListener('click',async e=>{const copy=e.target.closest('.copy-history');if(copy){await copyText(copy.dataset.text||'');toast('✓ Riwayat disalin');return}const del=e.target.closest('.delete-session');if(del&&confirm('Hapus seluruh aktivitas dalam sesi ini?')){setHistory(getHistory().filter(s=>s.id!==del.dataset.id));renderHistory();renderRecap();updateDashboard();updateStorageInfo();toast('✓ Sesi dihapus')}});
 
-
-function allActivityItems(){
-  const rows=[];
-  getHistory().forEach(s=>(s.items||[]).forEach(item=>rows.push({...item,date:s.date,activity:s.activity,activityNo:s.activityNo||''})));
-  return rows;
-}
-function updateDashboard(){
-  const all=allActivityItems(), today=dateInput.value, now=new Date(), month=now.toISOString().slice(0,7);
-  const todayCount=all.filter(x=>x.date===today).length;
-  const monthCount=all.filter(x=>String(x.date).slice(0,7)===month).length;
-  $('dashDate').textContent=formatDate(today);
-  $('statToday').textContent=todayCount;
-  $('statMonth').textContent=monthCount;
-  $('statTotal').textContent=all.length;
-  const recent=all.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(-5).reverse();
-  $('dashRecent').innerHTML=recent.length ? recent.map((x,i)=>`<div class="history-item"><b>${esc(x.activity)}</b><div class="history-meta">${esc(formatDate(x.date))}</div><div style="font-size:13px;margin-top:5px">${esc(x.text)}</div></div>`).join('') : '<div class="empty">Belum ada aktivitas tersimpan.</div>';
-}
-
-function flattenHistory(all){
-  const rows=[];
-  let no=1;
-  all.forEach(session=>{
-    (session.items||[]).forEach(item=>{
-      rows.push({
-        No:no++,
-        Tanggal:session.date,
-        'Jenis Aktivitas':session.activity,
-        'No Aktivitas':session.activityNo||'',
-        'Uraian Aktivitas':item.text
-      });
-    });
-  });
-  return rows;
-}
-function exportExcel(all, filename){
-  const rows=flattenHistory(all);
-  if(!rows.length) return toast('Belum ada data untuk diexport.');
-  if(!window.XLSX){
-    downloadCsv(all,filename.replace(/\.xlsx$/i,'.csv'));
-    toast('SheetJS belum termuat. File CSV dibuat sebagai cadangan.');
-    return;
-  }
-  const ws=XLSX.utils.json_to_sheet(rows);
-  ws['!cols']=[{wch:6},{wch:15},{wch:34},{wch:14},{wch:75}];
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Aktivitas');
-  XLSX.writeFile(wb,filename,{compression:true});
-  toast('✓ Excel berhasil dibuat');
-}
-function filteredHistory(){
-  const all=getHistory();
-  const from=$('recapFrom').value, to=$('recapTo').value;
-  return all.filter(s=>(!from||s.date>=from)&&(!to||s.date<=to));
-}
-function renderRecap(){
-  const all=filteredHistory();
-  const map=new Map();
-  all.forEach(s=>(s.items||[]).forEach(item=>{
-    const key=(s.activityNo?('#'+s.activityNo+' — '):'')+s.activity;
-    if(!map.has(key)) map.set(key,{activity:key,count:0,last:item.text});
-    const x=map.get(key); x.count++; x.last=item.text;
-  }));
-  const rows=Array.from(map.values()).sort((a,b)=>b.count-a.count||a.activity.localeCompare(b.activity));
-  $('recapCount').textContent=`${rows.reduce((n,x)=>n+x.count,0)} aktivitas`;
-  $('recapBody').innerHTML=rows.length ? rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.activity)}</td><td><b>${r.count}</b></td><td>${esc(r.last)}</td></tr>`).join('') : '<tr><td colspan="4" class="empty">Belum ada data pada rentang tanggal ini.</td></tr>';
-}
-
-
-$('tabLogin').addEventListener('click',()=>switchAuth('login'));
-$('tabRegister').addEventListener('click',()=>switchAuth('register'));
-$('loginForm').addEventListener('submit',async e=>{
-  e.preventDefault(); clearAuthError();
-  const username=normalizedUsername($('loginUsername').value), password=$('loginPassword').value;
-  const user=getUsers().find(u=>u.username===username);
-  if(!user) return showAuthError('Username belum terdaftar.');
-  const hash=await hashPassword(password);
-  if(hash!==user.passHash) return showAuthError('Username atau password salah.');
-  currentUser=user; saveSession(); showApp();
-});
-$('registerForm').addEventListener('submit',async e=>{
-  e.preventDefault(); clearAuthError();
-  const name=$('registerName').value.trim(), username=normalizedUsername($('registerUsername').value);
-  const p1=$('registerPassword').value, p2=$('registerPassword2').value;
-  if(!name) return showAuthError('Nama pengguna wajib diisi.');
-  if(!/^[a-z0-9._-]{3,30}$/.test(username)) return showAuthError('Username 3–30 karakter: huruf kecil, angka, titik, garis bawah, atau tanda minus.');
-  if(p1.length<4) return showAuthError('Password minimal 4 karakter.');
-  if(p1!==p2) return showAuthError('Konfirmasi password tidak sama.');
-  const users=getUsers();
-  if(users.some(u=>u.username===username)) return showAuthError('Username sudah digunakan pada perangkat ini.');
-  const user={username,name,passHash:await hashPassword(p1),createdAt:new Date().toISOString()};
-  users.push(user); setUsers(users); currentUser=user; saveSession(); showApp(); toast('✓ Pengguna berhasil dibuat');
-});
-$('logoutBtn').addEventListener('click',logout);
-$('accountLogoutBtn').addEventListener('click',logout);
-$('dashInputBtn').addEventListener('click',()=>{
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-  const b=document.querySelector('[data-panel="panelInput"]'); if(b)b.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); $('panelInput').classList.add('active');
-});
+function filteredHistory(){const all=getHistory(),from=$('recapFrom').value,to=$('recapTo').value;return all.filter(s=>(!from||s.date>=from)&&(!to||s.date<=to))}
+function renderRecap(){const all=filteredHistory(),map=new Map();all.forEach(s=>(s.items||[]).forEach(item=>{const activity=item.activity||s.activity||'Tanpa jenis aktivitas';const no=item.activityNo??s.activityNo??'';const key=`${no}|${activity}`;if(!map.has(key))map.set(key,{activity,activityNo:no,count:0,last:item.text||''});const x=map.get(key);x.count++;x.last=item.text||x.last}));const rows=Array.from(map.values()).sort((a,b)=>b.count-a.count||a.activity.localeCompare(b.activity));$('recapCount').textContent=`${rows.reduce((n,x)=>n+x.count,0)} aktivitas`;$('recapBody').innerHTML=rows.length?rows.map((r,i)=>`<tr><td>${i+1}</td><td>#${esc(r.activityNo||'-')} — ${esc(r.activity)}</td><td><b>${r.count}</b></td><td>${esc(r.last)}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Belum ada data pada rentang tanggal ini.</td></tr>'}
 $('recapFilterBtn').addEventListener('click',renderRecap);
-$('exportXlsxBtn').addEventListener('click',()=>{
-  const all=filteredHistory();
-  const user=(currentUser?.username||'pengguna').replace(/[^a-z0-9_-]/gi,'_');
-  exportExcel(all,`SITAMPAN_${user}_Rekap_Aktivitas.xlsx`);
-});
-$('dateInput').addEventListener('change',()=>{
-  if(currentUser) loadDraft();
-  updateDashboard();
-});
+function exportExcel(all,filename){const detail=flattenHistory(all);if(!detail.length)return toast('Belum ada data untuk diexport.');if(!window.XLSX){downloadCsv(all,filename.replace(/\.xlsx$/i,'.csv'));return toast('SheetJS belum termuat. CSV dibuat sebagai cadangan.')}const summaryMap=new Map();detail.forEach(r=>{const k=`${r['No Aktivitas']}|${r['Jenis Aktivitas']}`;if(!summaryMap.has(k))summaryMap.set(k,{'No Aktivitas':r['No Aktivitas'],'Jenis Aktivitas':r['Jenis Aktivitas'],Jumlah:0});summaryMap.get(k).Jumlah++});const summary=Array.from(summaryMap.values()).sort((a,b)=>b.Jumlah-a.Jumlah);const wb=XLSX.utils.book_new();const ws1=XLSX.utils.json_to_sheet(detail);const ws2=XLSX.utils.json_to_sheet(summary);ws1['!cols']=[{wch:6},{wch:14},{wch:34},{wch:14},{wch:70},{wch:28}];ws2['!cols']=[{wch:14},{wch:42},{wch:10}];XLSX.utils.book_append_sheet(wb,ws1,'Detail');XLSX.utils.book_append_sheet(wb,ws2,'Rekap');XLSX.writeFile(wb,filename,{compression:true});toast('✓ Excel berhasil dibuat')}
+$('exportXlsxBtn').addEventListener('click',()=>{const u=(currentUser?.username||'pengguna').replace(/[^a-z0-9_-]/gi,'_');exportExcel(filteredHistory(),`AKTIVITAS_${u}_Rekap_Aktivitas.xlsx`)});
 
-document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>{
-  
+function allItems(){const rows=[];getHistory().forEach(s=>(s.items||[]).forEach(item=>rows.push({...item,date:s.date,activity:item.activity||s.activity,activityNo:item.activityNo??s.activityNo??''})));return rows}
+function updateDashboard(){const all=allItems(),d=today(),m=d.slice(0,7);$('dashDate').textContent=formatDate(d);$('statToday').textContent=all.filter(x=>x.date===d).length;$('statMonth').textContent=all.filter(x=>String(x.date).slice(0,7)===m).length;$('statTotal').textContent=all.length;const recent=all.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);$('dashRecent').innerHTML=recent.length?recent.map(x=>`<div class="history-item"><div class="history-title">#${esc(x.activityNo||'-')} · ${esc(x.activity||'')}</div><div class="history-meta">${esc(formatDate(x.date))}</div><div class="history-text">${esc(x.text)}</div></div>`).join(''):'<div class="empty">Belum ada aktivitas tersimpan.</div>';const counts=new Map();all.filter(x=>String(x.date).slice(0,7)===m).forEach(x=>counts.set(x.activity,(counts.get(x.activity)||0)+1));const top=Array.from(counts.entries()).sort((a,b)=>b[1]-a[1]).slice(0,5);const max=top[0]?.[1]||1;$('topActivities').innerHTML=top.length?top.map(([name,count])=>`<div class="mini-bar"><div class="mini-bar-label" title="${esc(name)}">${esc(name)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(count/max*100))}%"></div></div><div class="mini-bar-count">${count}</div></div>`).join(''):'<div class="empty">Belum ada aktivitas bulan ini.</div>'}
+function updateStorageInfo(){const d=getUserData();const bytes=new Blob([JSON.stringify(d)]).size;const kb=(bytes/1024).toFixed(1);$('storageInfo').innerHTML=`Akun aktif: <b>${esc(currentUser?.username||'-')}</b><br>Jumlah aktivitas: <b>${allItems().length}</b><br>Perkiraan ukuran data akun: <b>${kb} KB</b><br><br>Data V6 disimpan di localStorage browser. Membersihkan data situs/browser dapat menghapus akun dan riwayat.`}
 
-function allActivityItems(){
-  const rows=[];
-  getHistory().forEach(s=>(s.items||[]).forEach(item=>rows.push({...item,date:s.date,activity:s.activity,activityNo:s.activityNo||''})));
-  return rows;
-}
-function updateDashboard(){
-  const all=allActivityItems(), today=dateInput.value, now=new Date(), month=now.toISOString().slice(0,7);
-  const todayCount=all.filter(x=>x.date===today).length;
-  const monthCount=all.filter(x=>String(x.date).slice(0,7)===month).length;
-  $('dashDate').textContent=formatDate(today);
-  $('statToday').textContent=todayCount;
-  $('statMonth').textContent=monthCount;
-  $('statTotal').textContent=all.length;
-  const recent=all.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(-5).reverse();
-  $('dashRecent').innerHTML=recent.length ? recent.map((x,i)=>`<div class="history-item"><b>${esc(x.activity)}</b><div class="history-meta">${esc(formatDate(x.date))}</div><div style="font-size:13px;margin-top:5px">${esc(x.text)}</div></div>`).join('') : '<div class="empty">Belum ada aktivitas tersimpan.</div>';
-}
+function backupData(){const payload={app:'AKTIVITAS Voice',version:'V6',username:currentUser.username,name:currentUser.name,exportedAt:new Date().toISOString(),history:getHistory()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`AKTIVITAS_Backup_${currentUser.username}_${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500);toast('✓ Backup JSON berhasil dibuat')}
+$('backupBtn').addEventListener('click',backupData);
+$('restoreBtn').addEventListener('click',()=>{const file=$('restoreFile').files[0];if(!file)return toast('Pilih file backup JSON terlebih dahulu.');const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);if(p.app!=='AKTIVITAS Voice'||!Array.isArray(p.history))throw new Error('Format');const existing=getHistory();const existingIds=new Set(existing.map(x=>x.id));const incoming=p.history.filter(x=>x&&x.id&&!existingIds.has(x.id));setHistory(existing.concat(incoming));renderHistory();renderRecap();updateDashboard();updateStorageInfo();$('restoreFile').value='';toast(`✓ ${incoming.length} sesi baru dipulihkan`)}catch(e){toast('File backup tidak valid.')}};reader.readAsText(file)});
 
-function flattenHistory(all){
-  const rows=[];
-  let no=1;
-  all.forEach(session=>{
-    (session.items||[]).forEach(item=>{
-      rows.push({
-        No:no++,
-        Tanggal:session.date,
-        'Jenis Aktivitas':session.activity,
-        'No Aktivitas':session.activityNo||'',
-        'Uraian Aktivitas':item.text
-      });
-    });
-  });
-  return rows;
-}
-function exportExcel(all, filename){
-  const rows=flattenHistory(all);
-  if(!rows.length) return toast('Belum ada data untuk diexport.');
-  if(!window.XLSX){
-    downloadCsv(all,filename.replace(/\.xlsx$/i,'.csv'));
-    toast('SheetJS belum termuat. File CSV dibuat sebagai cadangan.');
-    return;
-  }
-  const ws=XLSX.utils.json_to_sheet(rows);
-  ws['!cols']=[{wch:6},{wch:15},{wch:34},{wch:14},{wch:75}];
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Aktivitas');
-  XLSX.writeFile(wb,filename,{compression:true});
-  toast('✓ Excel berhasil dibuat');
-}
-function filteredHistory(){
-  const all=getHistory();
-  const from=$('recapFrom').value, to=$('recapTo').value;
-  return all.filter(s=>(!from||s.date>=from)&&(!to||s.date<=to));
-}
-function renderRecap(){
-  const all=filteredHistory();
-  const map=new Map();
-  all.forEach(s=>(s.items||[]).forEach(item=>{
-    const key=(s.activityNo?('#'+s.activityNo+' — '):'')+s.activity;
-    if(!map.has(key)) map.set(key,{activity:key,count:0,last:item.text});
-    const x=map.get(key); x.count++; x.last=item.text;
-  }));
-  const rows=Array.from(map.values()).sort((a,b)=>b.count-a.count||a.activity.localeCompare(b.activity));
-  $('recapCount').textContent=`${rows.reduce((n,x)=>n+x.count,0)} aktivitas`;
-  $('recapBody').innerHTML=rows.length ? rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.activity)}</td><td><b>${r.count}</b></td><td>${esc(r.last)}</td></tr>`).join('') : '<tr><td colspan="4" class="empty">Belum ada data pada rentang tanggal ini.</td></tr>';
-}
-
-
-$('tabLogin').addEventListener('click',()=>switchAuth('login'));
-$('tabRegister').addEventListener('click',()=>switchAuth('register'));
-$('loginForm').addEventListener('submit',async e=>{
-  e.preventDefault(); clearAuthError();
-  const username=normalizedUsername($('loginUsername').value), password=$('loginPassword').value;
-  const user=getUsers().find(u=>u.username===username);
-  if(!user) return showAuthError('Username belum terdaftar.');
-  const hash=await hashPassword(password);
-  if(hash!==user.passHash) return showAuthError('Username atau password salah.');
-  currentUser=user; saveSession(); showApp();
-});
-$('registerForm').addEventListener('submit',async e=>{
-  e.preventDefault(); clearAuthError();
-  const name=$('registerName').value.trim(), username=normalizedUsername($('registerUsername').value);
-  const p1=$('registerPassword').value, p2=$('registerPassword2').value;
-  if(!name) return showAuthError('Nama pengguna wajib diisi.');
-  if(!/^[a-z0-9._-]{3,30}$/.test(username)) return showAuthError('Username 3–30 karakter: huruf kecil, angka, titik, garis bawah, atau tanda minus.');
-  if(p1.length<4) return showAuthError('Password minimal 4 karakter.');
-  if(p1!==p2) return showAuthError('Konfirmasi password tidak sama.');
-  const users=getUsers();
-  if(users.some(u=>u.username===username)) return showAuthError('Username sudah digunakan pada perangkat ini.');
-  const user={username,name,passHash:await hashPassword(p1),createdAt:new Date().toISOString()};
-  users.push(user); setUsers(users); currentUser=user; saveSession(); showApp(); toast('✓ Pengguna berhasil dibuat');
-});
-$('logoutBtn').addEventListener('click',logout);
-$('accountLogoutBtn').addEventListener('click',logout);
-$('dashInputBtn').addEventListener('click',()=>{
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-  const b=document.querySelector('[data-panel="panelInput"]'); if(b)b.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); $('panelInput').classList.add('active');
-});
-$('recapFilterBtn').addEventListener('click',renderRecap);
-$('exportXlsxBtn').addEventListener('click',()=>{
-  const all=filteredHistory();
-  const user=(currentUser?.username||'pengguna').replace(/[^a-z0-9_-]/gi,'_');
-  exportExcel(all,`SITAMPAN_${user}_Rekap_Aktivitas.xlsx`);
-});
-$('dateInput').addEventListener('change',()=>{
-  if(currentUser) loadDraft();
-  updateDashboard();
-});
-
-document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); $(btn.dataset.panel).classList.add('active');
-  if(btn.dataset.panel==='panelHistory') loadHistory();
-  if(btn.dataset.panel==='panelDashboard') updateDashboard();
-  if(btn.dataset.panel==='panelRecap') renderRecap();
-}));
-
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault(); deferredPrompt=e; $('installBox').style.display='block';
-});
-$('installBtn').addEventListener('click',async()=>{
-  if(deferredPrompt){deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null;}
-  else toast('Gunakan menu browser → Tambahkan ke layar utama.');
-});
-
-if('serviceWorker' in navigator && location.protocol!=='file:'){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-}
-(function init(){
-  const session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
-  if(session){
-    const user=getUsers().find(u=>u.username===session.username);
-    if(user){currentUser=user; showApp(); return;}
-  }
-  switchAuth('login');
-})();
+$('tabLogin').addEventListener('click',()=>switchAuth('login'));$('tabRegister').addEventListener('click',()=>switchAuth('register'));
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();clearAuthError();const username=normalizedUsername($('loginUsername').value),password=$('loginPassword').value;const user=getUsers().find(u=>u.username===username);if(!user)return showAuthError('Username belum terdaftar.');if(await hashPassword(password)!==user.passHash)return showAuthError('Username atau password salah.');currentUser=user;saveSession();showApp()});
+$('registerForm').addEventListener('submit',async e=>{e.preventDefault();clearAuthError();const name=$('registerName').value.trim(),username=normalizedUsername($('registerUsername').value),p1=$('registerPassword').value,p2=$('registerPassword2').value;if(!name)return showAuthError('Nama pengguna wajib diisi.');if(!/^[a-z0-9._-]{3,30}$/.test(username))return showAuthError('Username 3–30 karakter: huruf kecil, angka, titik, garis bawah, atau minus.');if(p1.length<4)return showAuthError('Password minimal 4 karakter.');if(p1!==p2)return showAuthError('Konfirmasi password tidak sama.');const users=getUsers();if(users.some(u=>u.username===username))return showAuthError('Username sudah digunakan pada perangkat ini.');const user={username,name,passHash:await hashPassword(p1),createdAt:new Date().toISOString()};users.push(user);setUsers(users);currentUser=user;saveSession();showApp();toast('✓ Pengguna berhasil dibuat')});
+$('logoutBtn').addEventListener('click',logout);$('accountLogoutBtn').addEventListener('click',logout);
+function goPanel(panel){document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.panel===panel));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===panel));if(panel==='panelHistory')renderHistory();if(panel==='panelRecap')renderRecap();if(panel==='panelDashboard')updateDashboard();if(panel==='panelBackup')updateStorageInfo();window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>goPanel(b.dataset.panel)));
+$('dashInputBtn').addEventListener('click',()=>goPanel('panelInput'));$('dashRecapBtn').addEventListener('click',()=>goPanel('panelRecap'));
+let installDeferred=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installDeferred=e;$('installBox').style.display='block'});$('installBtn').addEventListener('click',async()=>{if(installDeferred){installDeferred.prompt();await installDeferred.userChoice;installDeferred=null}else toast('Gunakan menu browser → Tambahkan ke layar utama.')});
+if('serviceWorker' in navigator&&location.protocol!=='file:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+(function init(){try{const s=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');if(s){const u=getUsers().find(x=>x.username===s.username);if(u){currentUser=u;showApp();return}}}catch(e){}switchAuth('login')})();
 </script>
 </body>
 </html>

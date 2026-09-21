@@ -1,56 +1,30 @@
-# SITAMPAN Voice
+# SITAMPAN Voice V6
 
-Prototype PWA gratis untuk input aktivitas harian dengan suara.
+SITAMPAN Voice V6 adalah PWA statis untuk membantu pencatatan aktivitas harian berbasis voice-to-text.
 
-## Fitur
-- 117 jenis aktivitas SITAMPAN sebagai master data.
-- Pilih tanggal.
-- Cari dan pilih jenis aktivitas.
-- Voice-to-text Bahasa Indonesia (`id-ID`).
-- Banyak hasil dalam satu sesi.
-- Edit hasil sebelum disalin.
-- Salin satu hasil atau semua hasil.
-- Simpan riwayat secara lokal di perangkat.
-- PWA / dapat ditambahkan ke layar utama.
-- Tanpa framework dan tanpa API berbayar.
+## Fitur V6
+- Login/daftar pengguna lokal.
+- Data aktivitas dipisahkan per akun pada localStorage.
+- Migrasi otomatis data V5 (jika ditemukan).
+- 117 jenis aktivitas SITAMPAN.
+- Input suara Bahasa Indonesia.
+- Mode input suara berulang.
+- Setiap hasil dapat diubah jenis aktivitasnya sebelum disimpan.
+- Draft otomatis.
+- Salin satu/semua hasil.
+- Riwayat dengan pencarian, filter tanggal, dan pengurutan.
+- Dashboard statistik harian, bulanan, total, dan aktivitas terbanyak.
+- Rekap rentang tanggal.
+- Export Excel XLSX dan CSV.
+- Backup/pemulihan data JSON.
+- PWA/service worker untuk pengalaman seperti aplikasi.
 
-## Cara menjalankan
-1. Untuk uji tampilan, buka `index.html`.
-2. Untuk fitur PWA/service worker, hosting-kan folder ini melalui HTTPS, misalnya GitHub Pages.
-3. Pada smartphone, buka URL HTTPS tersebut dengan browser yang mendukung Speech Recognition.
-4. Izinkan akses mikrofon.
+## Catatan
+- Login bersifat lokal, bukan autentikasi server.
+- Data tersimpan di browser/perangkat yang digunakan.
+- Membersihkan data situs/browser dapat menghapus akun dan riwayat.
+- Speech Recognition bergantung pada dukungan browser/perangkat dan pada sebagian browser memerlukan internet.
+- Export XLSX memakai SheetJS Community Edition dari CDN resmi; jika library tidak termuat, aplikasi menyediakan CSV sebagai cadangan.
 
-## Catatan voice-to-text
-Fitur pengenalan suara bergantung pada dukungan browser/perangkat. Jika tombol mikrofon tidak bekerja, gunakan browser yang mendukung Web Speech Recognition dan pastikan izin mikrofon aktif.
-
-## Hosting gratis
-GitHub Pages dapat digunakan untuk situs statis. Untuk akun GitHub Free, repository yang digunakan untuk Pages harus public.
-
-## Perbaikan versi 2
-- Ditambahkan dropdown native 117 aktivitas yang lebih kompatibel dengan smartphone.
-- Search aktivitas tetap tersedia.
-- Cache service worker dinaikkan ke v2 agar pembaruan aplikasi terbaca.
-
-## Perbaikan versi 3
-- Memperbaiki syntax JavaScript pada penanganan error voice yang sebelumnya menghentikan seluruh script, sehingga 117 pilihan aktivitas tidak pernah terisi.
-- Cache service worker dinaikkan ke v3.
-
-## Perbaikan versi 4
-- Simpan aktivitas ke riwayat lokal.
-- Riwayat dapat difilter berdasarkan tanggal.
-- Riwayat dapat dihapus per sesi.
-- Export seluruh riwayat ke CSV yang dapat dibuka di Excel.
-- Cache service worker dinaikkan ke v4.
-
-## Perbaikan versi 5
-- Login pengguna lokal dengan registrasi akun.
-- Password disimpan sebagai hash SHA-256 bila Web Crypto tersedia.
-- Data aktivitas dipisahkan per pengguna menggunakan localStorage.
-- Dashboard: aktivitas hari ini, bulan ini, total aktivitas, aktivitas terbaru.
-- Rekap berdasarkan rentang tanggal dan jenis aktivitas.
-- Export Excel `.xlsx` menggunakan SheetJS Community Edition melalui CDN resmi.
-- Export CSV tetap tersedia sebagai fallback.
-- Cache service worker dinaikkan ke v5.
-
-### Catatan keamanan
-Login V5 adalah login lokal pada perangkat/browser, bukan autentikasi server. Data dan akun tidak tersinkron antar perangkat dan localStorage dapat dihapus oleh browser. Jangan gunakan untuk password/data sangat sensitif tanpa backend autentikasi yang aman.
+## GitHub Pages
+Upload seluruh isi folder ini ke root repository GitHub Pages. Pastikan `index.html` berada di root.
