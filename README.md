@@ -41,3 +41,16 @@ GitHub Pages dapat digunakan untuk situs statis. Untuk akun GitHub Free, reposit
 - Riwayat dapat dihapus per sesi.
 - Export seluruh riwayat ke CSV yang dapat dibuka di Excel.
 - Cache service worker dinaikkan ke v4.
+
+## Perbaikan versi 5
+- Login pengguna lokal dengan registrasi akun.
+- Password disimpan sebagai hash SHA-256 bila Web Crypto tersedia.
+- Data aktivitas dipisahkan per pengguna menggunakan localStorage.
+- Dashboard: aktivitas hari ini, bulan ini, total aktivitas, aktivitas terbaru.
+- Rekap berdasarkan rentang tanggal dan jenis aktivitas.
+- Export Excel `.xlsx` menggunakan SheetJS Community Edition melalui CDN resmi.
+- Export CSV tetap tersedia sebagai fallback.
+- Cache service worker dinaikkan ke v5.
+
+### Catatan keamanan
+Login V5 adalah login lokal pada perangkat/browser, bukan autentikasi server. Data dan akun tidak tersinkron antar perangkat dan localStorage dapat dihapus oleh browser. Jangan gunakan untuk password/data sangat sensitif tanpa backend autentikasi yang aman.
