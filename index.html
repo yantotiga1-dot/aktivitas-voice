@@ -102,9 +102,11 @@ input:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181
         <span id="resultCount" class="count">0 hasil</span>
       </div>
       <div id="results"></div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button id="copyAllBtn" class="btn btn-secondary" style="flex:1">📋 Salin Semua</button>
-        <button id="clearBtn" class="btn btn-secondary" style="flex:1">🧹 Bersihkan</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+        <button id="copyAllBtn" class="btn btn-secondary">📋 Salin Semua</button>
+        <button id="saveSessionBtn" class="btn btn-primary">💾 Simpan Aktivitas</button>
+        <button id="clearBtn" class="btn btn-secondary">🧹 Bersihkan</button>
+        <button id="exportCsvBtn" class="btn btn-secondary">📥 Export CSV</button>
       </div>
     </div>
   </section>
@@ -112,7 +114,12 @@ input:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181
   <section id="panelHistory" class="panel">
     <div class="card">
       <div class="result-head"><h2>Riwayat Aktivitas</h2><span id="historyCount" class="count"></span></div>
+      <div class="field">
+        <label for="historyDateFilter">Filter Tanggal</label>
+        <input id="historyDateFilter" type="date">
+      </div>
       <div id="history"></div>
+      <button id="exportHistoryBtn" class="btn btn-secondary" style="width:100%;margin-top:10px">📥 Export Semua Riwayat</button>
     </div>
   </section>
 
@@ -249,7 +256,7 @@ $('copyAllBtn').addEventListener('click',async()=>{
 });
 $('clearBtn').addEventListener('click',()=>{
   if(!results.length) return;
-  if(confirm('Hapus semua hasil pada input ini?')){results=[];renderResults();}
+  if(confirm('Hapus semua hasil pada input ini?')){results=[];localStorage.removeItem(STORAGE_KEY);renderResults();}
 });
 
 function saveDraft(){
@@ -330,25 +337,96 @@ voiceBtn.addEventListener('click',()=>{
   try{recognition.start();}catch(e){statusEl.textContent='Tidak dapat memulai mikrofon. Coba lagi.';}
 });
 
-function loadHistory(){
-  const all=JSON.parse(localStorage.getItem('sitampanVoiceHistoryV1')||'[]');
-  $('historyCount').textContent=`${all.length} sesi`;
-  $('history').innerHTML=all.length ? all.slice().reverse().map(x=>`
-    <div class="history-item">
-      <div class="history-date">${esc(formatDate(x.date))}</div>
-      <div class="history-meta">${esc(x.activity)} · ${x.count} hasil</div>
-    </div>`).join('') :
-    '<div class="empty">Belum ada riwayat tersimpan.</div>';
+function getHistory(){
+  try{return JSON.parse(localStorage.getItem('sitampanVoiceHistoryV1')||'[]');}
+  catch(e){return [];}
+}
+function setHistory(all){
+  localStorage.setItem('sitampanVoiceHistoryV1',JSON.stringify(all));
 }
 function saveCurrentToHistory(){
   if(!results.length) return toast('Belum ada hasil untuk disimpan.');
-  const all=JSON.parse(localStorage.getItem('sitampanVoiceHistoryV1')||'[]');
-  all.push({date:dateInput.value,activity:selectedActivityObj?.name||'Tanpa jenis aktivitas',count:results.length,items:results});
-  localStorage.setItem('sitampanVoiceHistoryV1',JSON.stringify(all));
-  toast('✓ Sesi disimpan ke riwayat'); loadHistory();
+  const all=getHistory();
+  const session={
+    id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
+    date:dateInput.value,
+    activity:selectedActivityObj?.name||'Tanpa jenis aktivitas',
+    activityNo:selectedActivityObj?.no||null,
+    count:results.length,
+    items:results.map(r=>({...r}))
+  };
+  all.push(session);
+  setHistory(all);
+  results=[];
+  renderResults();
+  localStorage.removeItem(STORAGE_KEY);
+  loadHistory();
+  toast('✓ Aktivitas berhasil disimpan');
 }
-$('results').insertAdjacentHTML('afterend','<button id="saveHistoryBtn" class="btn btn-secondary" style="width:100%;margin-top:8px">💾 Simpan Sesi ke Riwayat</button>');
-$('saveHistoryBtn').addEventListener('click',saveCurrentToHistory);
+function deleteHistory(id){
+  const all=getHistory().filter(x=>x.id!==id);
+  setHistory(all); loadHistory(); toast('✓ Riwayat dihapus');
+}
+function loadHistory(){
+  const all=getHistory();
+  const filter=$('historyDateFilter')?.value||'';
+  const filtered=filter ? all.filter(x=>x.date===filter) : all;
+  $('historyCount').textContent=`${filtered.length} sesi`;
+  if(!filtered.length){
+    $('history').innerHTML='<div class="empty">Belum ada riwayat untuk pilihan ini.</div>';
+    return;
+  }
+  $('history').innerHTML=filtered.slice().reverse().map(x=>`
+    <div class="history-item">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+        <div>
+          <div class="history-date">${esc(formatDate(x.date))}</div>
+          <div class="history-meta">#${esc(x.activityNo||'-')} · ${esc(x.activity)} · ${x.count} hasil</div>
+        </div>
+        <button class="small danger delete-history" data-id="${esc(x.id)}">🗑️ Hapus</button>
+      </div>
+      <div style="margin-top:8px">
+        ${x.items.map((item,i)=>`<div style="font-size:13px;line-height:1.45;padding:6px 0;border-top:1px solid var(--line)">${i+1}. ${esc(item.text)}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+$('saveSessionBtn').addEventListener('click',saveCurrentToHistory);
+$('historyDateFilter').addEventListener('change',loadHistory);
+$('history').addEventListener('click',e=>{
+  const b=e.target.closest('.delete-history'); if(!b) return;
+  if(confirm('Hapus sesi riwayat ini?')) deleteHistory(b.dataset.id);
+});
+
+function rowsForCsv(all){
+  const rows=[['No','Tanggal','Jenis Aktivitas','No Aktivitas','Uraian Aktivitas']];
+  let no=1;
+  all.forEach(session=>{
+    session.items.forEach(item=>{
+      rows.push([no++,session.date,session.activity,session.activityNo||'',item.text]);
+    });
+  });
+  return rows;
+}
+function csvEscape(v){
+  const s=String(v??'');
+  return /[",\\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+function downloadCsv(all, filename){
+  if(!all.length) return toast('Belum ada data untuk diexport.');
+  const csv='\\uFEFF'+rowsForCsv(all).map(row=>row.map(csvEscape).join(',')).join('\\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+  toast('✓ File CSV berhasil dibuat');
+}
+$('exportCsvBtn').addEventListener('click',()=>{
+  const all=getHistory();
+  downloadCsv(all,`SITAMPAN_Aktivitas_${dateInput.value||'data'}.csv`);
+});
+$('exportHistoryBtn').addEventListener('click',()=>{
+  downloadCsv(getHistory(),'SITAMPAN_Riwayat_Aktivitas.csv');
+});
 
 document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); btn.classList.add('active');

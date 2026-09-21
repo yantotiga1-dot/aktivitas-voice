@@ -34,3 +34,10 @@ GitHub Pages dapat digunakan untuk situs statis. Untuk akun GitHub Free, reposit
 ## Perbaikan versi 3
 - Memperbaiki syntax JavaScript pada penanganan error voice yang sebelumnya menghentikan seluruh script, sehingga 117 pilihan aktivitas tidak pernah terisi.
 - Cache service worker dinaikkan ke v3.
+
+## Perbaikan versi 4
+- Simpan aktivitas ke riwayat lokal.
+- Riwayat dapat difilter berdasarkan tanggal.
+- Riwayat dapat dihapus per sesi.
+- Export seluruh riwayat ke CSV yang dapat dibuka di Excel.
+- Cache service worker dinaikkan ke v4.
