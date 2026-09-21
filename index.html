@@ -309,9 +309,9 @@ if(SpeechRecognition){
     }
   };
   recognition.onerror=e=>{
-    const msg={not-allowed:'Izin mikrofon ditolak. Aktifkan izin mikrofon pada browser.',
-      no-speech:'Tidak terdengar suara. Silakan coba lagi.',network:'Pengenalan suara membutuhkan koneksi internet pada sebagian browser.',
-      audio-capture:'Mikrofon tidak ditemukan.'}[e.error]||`Voice error: ${e.error}`;
+    const msg={'not-allowed':'Izin mikrofon ditolak. Aktifkan izin mikrofon pada browser.',
+      'no-speech':'Tidak terdengar suara. Silakan coba lagi.','network':'Pengenalan suara membutuhkan koneksi internet pada sebagian browser.',
+      'audio-capture':'Mikrofon tidak ditemukan.'}[e.error]||`Voice error: ${e.error}`;
     statusEl.textContent=msg; stopVoice();
   };
   recognition.onend=()=>stopVoice(false);

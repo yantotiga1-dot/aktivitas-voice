@@ -30,3 +30,7 @@ GitHub Pages dapat digunakan untuk situs statis. Untuk akun GitHub Free, reposit
 - Ditambahkan dropdown native 117 aktivitas yang lebih kompatibel dengan smartphone.
 - Search aktivitas tetap tersedia.
 - Cache service worker dinaikkan ke v2 agar pembaruan aplikasi terbaca.
+
+## Perbaikan versi 3
+- Memperbaiki syntax JavaScript pada penanganan error voice yang sebelumnya menghentikan seluruh script, sehingga 117 pilihan aktivitas tidak pernah terisi.
+- Cache service worker dinaikkan ke v3.
