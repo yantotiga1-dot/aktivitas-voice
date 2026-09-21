@@ -1,31 +1,28 @@
-# SITAMPAN Voice V7
+# AKTIVITAS VOICE V8
 
-SITAMPAN Voice V7 adalah PWA gratis untuk mencatat aktivitas harian dengan voice-to-text.
+Aplikasi web/PWA untuk mencatat aktivitas harian menggunakan voice-to-text, dengan 117 jenis aktivitas.
 
-## Fitur V7
+## Fitur V8
+- Nama web: AKTIVITAS VOICE
 - Login/daftar lokal per pengguna
-- 117 jenis aktivitas SITAMPAN
-- Voice-to-text Bahasa Indonesia
+- Dashboard dan statistik
+- 117 jenis aktivitas
+- Mode Pintar untuk mendeteksi jenis aktivitas dari ucapan
+- **Sesi suara panjang**: Speech Recognition memakai mode continuous dan auto-reconnect ketika browser mengakhiri sesi karena jeda
 - Mode input berulang
-- **Mode Pintar**: membantu mendeteksi jenis aktivitas dari ucapan
-- Koreksi jenis aktivitas per hasil
 - Draft otomatis
-- Riwayat + pencarian + filter tanggal + pengurutan
-- Dashboard statistik
-- Rekap rentang tanggal
-- Export Excel (.xlsx) dan CSV
+- Riwayat, pencarian, filter, dan rekap
+- Export Excel dan CSV
 - Backup/restore JSON
-- **Mode terang & gelap**, tersimpan di perangkat
-- PWA / dapat dipasang ke layar utama
+- Mode terang dan gelap
+- Animasi UI, efek mic aktif, transisi panel, hover dan micro-interaction
+- PWA untuk pemasangan di perangkat
 
-## Catatan data
-Akun dan data disimpan di localStorage browser pada perangkat yang digunakan. Tidak ada server database pada versi ini. Backup JSON disediakan untuk pemindahan data manual antar perangkat.
+## Catatan voice input
+Teknologi voice-to-text menggunakan Web Speech API browser. Durasi aktual tetap dipengaruhi browser, perangkat, izin mikrofon, dan koneksi. V8 mengurangi masalah berhenti cepat dengan `continuous=true` dan menyambungkan kembali sesi secara otomatis selama pengguna belum menekan tombol berhenti.
 
-## Deploy GitHub Pages
-1. Buat repository publik.
-2. Upload seluruh isi folder ini sehingga `index.html` berada di root repository.
-3. Settings → Pages → Deploy from a branch → `main` → `/ (root)`.
-4. Simpan dan buka URL GitHub Pages yang diberikan.
+## Data
+Data akun dan aktivitas disimpan di localStorage perangkat/browser. Tidak ada server database pada versi ini. Gunakan Backup JSON untuk memindahkan data.
 
-## Excel
-Export Excel menggunakan SheetJS Community Edition melalui CDN resmi. Jika library tidak termuat, aplikasi menyediakan CSV sebagai fallback.
+## Deployment GitHub Pages
+Upload seluruh isi folder ke root repository. Pastikan `index.html` berada di root. Aktifkan Settings → Pages → Deploy from a branch → main → /(root).

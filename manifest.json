@@ -1,7 +1,7 @@
 {
-  "name":"SITAMPAN Voice V7",
-  "short_name":"SITAMPAN Voice",
-  "description":"Pencatatan aktivitas harian berbasis suara dengan mode pintar dan tampilan terang/gelap.",
+  "name":"AKTIVITAS VOICE",
+  "short_name":"AKTIVITAS VOICE",
+  "description":"Pencatatan aktivitas harian berbasis suara dengan sesi suara panjang, mode pintar, animasi interaktif, dan mode terang/gelap.",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
